@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Smart Contracts needed to make the ecosystem work",
   "scripts": {
+    "build": "npm run lint && npm run truffle compile",
     "lint": "npm run lint:typescript && npm run lint:solidity",
     "lint:typescript": "npm run tslint -- --project ./",
     "lint:solidity": "npm run solhint contracts/**/*.sol",
-
     "truffle": "truffle",
     "tsc": "tsc",
     "tslint": "tslint",
@@ -26,6 +26,7 @@
     "solhint": "^1.1.9",
     "truffle": "^4.0.3",
     "tslint": "^5.8.0",
-    "typescript": "^2.6.2"
+    "typescript": "^2.6.2",
+    "zeppelin-solidity": "^1.4.0"
   }
 }
