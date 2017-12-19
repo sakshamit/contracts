@@ -25,6 +25,8 @@ contract Newsroom is Ownable {
   }
 
   function proposeArticle(string articleUri) public returns (uint) {
+    require(bytes(articleUri).length > 0);
+
     uint id = latestId;
     latestId++;
 
