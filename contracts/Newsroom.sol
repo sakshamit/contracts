@@ -24,6 +24,14 @@ contract Newsroom is Ownable {
     return articles[articleId].timestamp;
   }
 
+  function isProposed(uint articleId) public view returns (bool) {
+    return waiting[articleId];
+  }
+
+  function isApproved(uint articleId) public view returns (bool) {
+    return approved[articleId];
+  }
+
   function proposeArticle(string articleUri) public returns (uint) {
     require(bytes(articleUri).length > 0);
 
