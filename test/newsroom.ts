@@ -1,7 +1,7 @@
 import * as chai from "chai";
 import { events, REVERTED } from "../utils/constants";
 import ChaiConfig from "./utils/chaiconfig";
-import { findEvent, idFromEvent, is0x0Address } from "./utils/contractutils";
+import { findEvent, idFromEvent, is0x0Address, timestampFromTx } from "./utils/contractutils";
 
 const Newsroom = artifacts.require("Newsroom");
 
@@ -80,6 +80,37 @@ contract("Newsroom", (accounts: string[]) => {
     });
 
     describe("timestamp", () => {
+        let id: any;
+        let timestamp: any;
+
+        beforeEach(async () => {
+            const tx = await newsroom.proposeArticle(SOME_URI);
+            id = idFromEvent(tx);
+            timestamp = await timestampFromTx(web3, tx.receipt);
+        });
+
+        it("returns proper timestamp", async () => {
+            expect(timestamp).not.to.be.bignumber.equal(0);
+
+            await expect(newsroom.timestamp(id)).to.eventually.be.bignumber.equal(timestamp);
+
+        });
+
+        it("works for approved articles", async () => {
+            await newsroom.approveArticle(id);
+
+            await expect(newsroom.timestamp(id)).to.eventually.be.bignumber.equal(timestamp);
+        });
+
+        it("returns zero on not existent articles", async () => {
+            await expect(newsroom.timestamp(9999)).to.eventually.be.bignumber.equal(0);
+        });
+
+        it("returns zero on denied articles", async () => {
+            await newsroom.denyArticle(id);
+
+            await expect(newsroom.timestamp(id)).to.eventually.be.bignumber.equal(0);
+        });
     });
 
     describe("isProposed", () => {

@@ -28,7 +28,7 @@
   "dependencies": {
     "@types/chai": "^4.0.10",
     "@types/chai-as-promised": "^7.1.0",
-    "bignumber.js": "^5.0.0",
+    "@types/underscore": "^1.8.6",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
@@ -37,7 +37,10 @@
     "solhint": "^1.1.9",
     "truffle": "^4.0.3",
     "tslint": "^5.8.0",
+    "types-bn": "0.0.1",
     "typescript": "^2.6.2",
+    "web3": "^0.20.2",
+    "web3-typescript-typings": "^0.7.2",
     "zeppelin-solidity": "^1.4.0"
   }
 }
