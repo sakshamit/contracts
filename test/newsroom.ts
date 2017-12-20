@@ -97,5 +97,44 @@ contract("Newsroom", (accounts: string[]) => {
     });
 
     describe("denyArticle", () => {
+        let id: any;
+
+        beforeEach(async () => {
+            const tx = await newsroom.proposeArticle(SOME_URI);
+            id = idFromEvent(tx);
+        });
+
+        it("allows denying", async () => {
+            await expect(newsroom.denyArticle(id)).to.eventually.be.fulfilled();
+        });
+
+        it("forbids not owners", async () => {
+            await expect(
+                newsroom.denyArticle(id, {from: accounts[1]}))
+                .to.be.rejectedWith(REVERTED);
+        });
+
+        it("fires an event", async () => {
+            const tx = await newsroom.denyArticle(id);
+            const event = findEvent(tx, events.DENIED);
+
+            expect(event).to.not.be.undefined();
+        });
+
+        it("can't readeny", async () => {
+            await newsroom.denyArticle(id);
+
+            await expect(newsroom.denyArticle(id)).to.be.rejectedWith(REVERTED);
+        });
+
+        it("can't approve after", async () => {
+            await newsroom.denyArticle(id);
+
+            await expect(newsroom.approveArticle(id)).to.be.rejectedWith(REVERTED);
+        });
+
+        it("fails on non-existent id", async () => {
+            await expect(newsroom.denyArticle(9999)).to.be.rejectedWith(REVERTED);
+        });
     });
 });
