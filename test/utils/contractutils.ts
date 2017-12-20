@@ -15,3 +15,7 @@ export function idFromEvent(tx: any) {
     }
     return undefined;
 }
+
+export function is0x0Address(address: string) {
+    return address === "0x0" || address === "0x0000000000000000000000000000000000000000";
+}

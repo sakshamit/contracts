@@ -1,7 +1,7 @@
 import * as chai from "chai";
 import { events, REVERTED } from "../utils/constants";
 import ChaiConfig from "./utils/chaiconfig";
-import { findEvent, idFromEvent } from "./utils/contractutils";
+import { findEvent, idFromEvent, is0x0Address } from "./utils/contractutils";
 
 const Newsroom = artifacts.require("Newsroom");
 
@@ -19,14 +19,67 @@ contract("Newsroom", (accounts: string[]) => {
     });
 
     describe("author", () => {
+        let id: any;
+
+        beforeEach(async () => {
+            const tx = await newsroom.proposeArticle(SOME_URI, {from: accounts[1]});
+            id = idFromEvent(tx);
+        });
+
+        it("returns 0x0 on non-existent articles", async () => {
+            const is0x0 = is0x0Address(await newsroom.author(9999));
+            expect(is0x0).to.be.true();
+        });
+
+        it("returns proper author", async () => {
+            await expect(
+                newsroom.author(id, {from: defaultAccount})).to.eventually.be.equal(accounts[1]);
+        });
+
+        it("works for approved articles", async () => {
+            await newsroom.approveArticle(id);
+
+            await expect(newsroom.author(id)).to.eventually.be.equal(accounts[1]);
+        });
+
+        it("returns 0x0 on denied articles", async () => {
+            await newsroom.denyArticle(id);
+
+            const is0x0 = is0x0Address(await newsroom.author(id));
+            expect(is0x0).to.be.true();
+        });
     });
 
     describe("uri", () => {
+        let id: any;
 
+        beforeEach(async () => {
+            const tx = await newsroom.proposeArticle(SOME_URI);
+            id = idFromEvent(tx);
+        });
+
+        it("returns empty string on non-existen articles", async () => {
+            await expect(newsroom.uri(9999)).to.eventually.be.equal("");
+        });
+
+        it("returns proper uri", async () => {
+            await expect(newsroom.uri(id)).to.eventually.be.equal(SOME_URI);
+        });
+
+        it("works on approved articles", async () => {
+            await newsroom.approveArticle(id);
+
+            await expect(newsroom.uri(id)).to.eventually.be.equal(SOME_URI);
+        });
+
+        it("returns empty string on denied articles", async () => {
+            await newsroom.denyArticle(id);
+
+            await expect(newsroom.uri(id)).to.eventually.be.equal("");
+        });
     });
 
     describe("timestamp", () => {
-
     });
 
     describe("isProposed", () => {
@@ -38,12 +91,12 @@ contract("Newsroom", (accounts: string[]) => {
     });
 
     describe("proposeArticle", () => {
-        it("forbids empty uris", () => {
-            return expect(newsroom.proposeArticle("")).to.be.rejectedWith(REVERTED);
+        it("forbids empty uris", async () => {
+            await expect(newsroom.proposeArticle("")).to.be.rejectedWith(REVERTED);
         });
 
-        it("finishes", () => {
-            return expect(newsroom.proposeArticle(SOME_URI)).to.eventually.be.fulfilled();
+        it("finishes", async () => {
+            await expect(newsroom.proposeArticle(SOME_URI)).to.eventually.be.fulfilled();
         });
 
         it("creates an event", async () => {
