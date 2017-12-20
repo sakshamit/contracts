@@ -93,7 +93,6 @@ contract("Newsroom", (accounts: string[]) => {
             expect(timestamp).not.to.be.bignumber.equal(0);
 
             await expect(newsroom.timestamp(id)).to.eventually.be.bignumber.equal(timestamp);
-
         });
 
         it("works for approved articles", async () => {
@@ -114,11 +113,61 @@ contract("Newsroom", (accounts: string[]) => {
     });
 
     describe("isProposed", () => {
+        let id: any;
 
+        beforeEach(async () => {
+            const tx = await newsroom.proposeArticle(SOME_URI);
+            id = idFromEvent(tx);
+        });
+
+        it("returns true on proposed articles", async () => {
+            await expect(newsroom.isProposed(id)).to.eventually.be.true();
+        });
+
+        it("returns false on approved articles", async () => {
+            await newsroom.approveArticle(id);
+
+            await expect(newsroom.isProposed(id)).to.eventually.be.false();
+        });
+
+        it("returns false on non-existen articles", async () => {
+            await expect(newsroom.isProposed(9999)).to.eventually.be.false();
+        });
+
+        it("returns false on denied articles", async () => {
+            await newsroom.denyArticle(id);
+
+            await expect(newsroom.isProposed(id)).to.eventually.be.false();
+        });
     });
 
     describe("isApproved", () => {
+        let id: any;
 
+        beforeEach(async () => {
+            const tx = await newsroom.proposeArticle(SOME_URI);
+            id = idFromEvent(tx);
+        });
+
+        it("returns false on proposed articles", async () => {
+            await expect(newsroom.isApproved(id)).to.eventually.be.false();
+        });
+
+        it("returns true on approved articles", async () => {
+            await newsroom.approveArticle(id);
+
+            await expect(newsroom.isApproved(id)).to.eventually.be.true();
+        });
+
+        it("returns false on non-existen articles", async () => {
+            await expect(newsroom.isProposed(9999)).to.eventually.be.false();
+        });
+
+        it("returns false on denied articles", async () => {
+            await newsroom.denyArticle(id);
+
+            await expect(newsroom.isProposed(id)).to.eventually.be.false();
+        });
     });
 
     describe("proposeArticle", () => {
