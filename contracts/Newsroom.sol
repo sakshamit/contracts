@@ -3,67 +3,67 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 contract Newsroom is Ownable {
-  event ArticleProposed(address indexed author, uint indexed id);
-  event ArticleApproved(uint id);
-  event ArticleDenied(uint id);
+  event ContentProposed(address indexed author, uint indexed id);
+  event ContentApproved(uint id);
+  event ContentDenied(uint id);
 
   uint private latestId;
-  mapping(uint => Article) private articles;
+  mapping(uint => Content) private content;
   mapping(uint => bool) private waiting;
   mapping(uint => bool) private approved;
 
-  function author(uint articleId) public view returns (address) {
-    return articles[articleId].author;
+  function author(uint contentId) public view returns (address) {
+    return content[contentId].author;
   }
 
-  function uri(uint articleId) public view returns (string) {
-    return articles[articleId].uri;
+  function uri(uint contentId) public view returns (string) {
+    return content[contentId].uri;
   }
 
-  function timestamp(uint articleId) public view returns (uint) {
-    return articles[articleId].timestamp;
+  function timestamp(uint contentId) public view returns (uint) {
+    return content[contentId].timestamp;
   }
 
-  function isProposed(uint articleId) public view returns (bool) {
-    return waiting[articleId];
+  function isProposed(uint contentId) public view returns (bool) {
+    return waiting[contentId];
   }
 
-  function isApproved(uint articleId) public view returns (bool) {
-    return approved[articleId];
+  function isApproved(uint contentId) public view returns (bool) {
+    return approved[contentId];
   }
 
-  function proposeArticle(string articleUri) public returns (uint) {
-    require(bytes(articleUri).length > 0);
+  function proposeContent(string contentUri) public returns (uint) {
+    require(bytes(contentUri).length > 0);
 
     uint id = latestId;
     latestId++;
 
-    articles[id] = Article(
-      articleUri,
+    content[id] = Content(
+      contentUri,
       msg.sender,
       now
     );
     waiting[id] = true;
-    ArticleProposed(msg.sender, id);
+    ContentProposed(msg.sender, id);
     return id;
   }
 
-  function approveArticle(uint id) public onlyOwner {
+  function approveContent(uint id) public onlyOwner {
     require(waiting[id] == true);
-    require(articles[id].author != 0x0);
+    require(content[id].author != 0x0);
     delete waiting[id];
     approved[id] = true;
-    ArticleApproved(id);
+    ContentApproved(id);
   }
 
-  function denyArticle(uint id) public onlyOwner {
+  function denyContent(uint id) public onlyOwner {
     require(waiting[id] == true);
     delete waiting[id];
-    delete articles[id];
-    ArticleDenied(id);
+    delete content[id];
+    ContentDenied(id);
   }
 
-  struct Article {
+  struct Content {
     string uri;
     address author;
     uint timestamp;

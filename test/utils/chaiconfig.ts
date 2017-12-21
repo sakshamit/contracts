@@ -4,8 +4,8 @@ import * as chaiBignumber from "chai-bignumber";
 import * as dirtyChai from "dirty-chai";
 
 export default () => {
-    chai.config.includeStack = true;
-    chai.use(chaiBignumber());
-    chai.use(chaiAsPromised);
-    chai.use(dirtyChai);
+  chai.config.includeStack = true;
+  chai.use(chaiBignumber());
+  chai.use(chaiAsPromised);
+  chai.use(dirtyChai);
 };

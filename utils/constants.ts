@@ -1,6 +1,6 @@
 export const REVERTED = "revert";
 export const events = {
-    APPROVED: "ArticleApproved",
-    DENIED: "ArticleDenied",
-    PROPOSED: "ArticleProposed",
+  APPROVED: "ContentApproved",
+  DENIED: "ContentDenied",
+  PROPOSED: "ContentProposed",
 };

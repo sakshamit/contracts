@@ -55,7 +55,7 @@
   "include": [
     "./test/**/*.ts",
     "./utils/**/*.ts",
-    "./node_modules/web3-typescript-typings/index.d.ts",
-    "./node_modules/ types-bn/index.d.ts"
+    "./migrations/**/*.ts",
+    "./node_modules/web3-typescript-typings/index.d.ts"
   ]
 }
