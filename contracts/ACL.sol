@@ -3,8 +3,8 @@ pragma solidity 0.4.18;
 contract ACL {
   event SuperuserAdded(address indexed granter, address indexed grantee);
   event SuperuserRemoved(address indexed granter, address indexed grantee);
-  event RoleAdded(address indexed granter, address indexed grantee, string indexed what);
-  event RoleRemoved(address indexed granter, address indexed grantee, string indexed what);
+  event RoleAdded(address indexed granter, address indexed grantee, string role);
+  event RoleRemoved(address indexed granter, address indexed grantee, string role);
 
   mapping(address => bool) superusers;
   mapping(string => RoleList) roles;
