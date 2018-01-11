@@ -19,22 +19,22 @@ contract ACL {
     _;
   }
 
-  function isSuperuser(address who) view public returns (bool) {
-    return superusers[who];
+  function isSuperuser(address user) view public returns (bool) {
+    return superusers[user];
   }
 
-  function hasRole(address who, string role) view public returns (bool) {
-    return roles[role].actors[who];
+  function hasRole(address user, string role) view public returns (bool) {
+    return roles[role].actors[user];
   }
 
-  function _addSuperuser(address who) internal {
-    superusers[who] = true;
-    SuperuserAdded(msg.sender, who);
+  function _addSuperuser(address user) internal {
+    superusers[user] = true;
+    SuperuserAdded(msg.sender, user);
   }
 
-  function _removeSuperuser(address who) internal { 
-    delete superusers[who];
-    SuperuserRemoved(msg.sender, who);
+  function _removeSuperuser(address user) internal { 
+    delete superusers[user];
+    SuperuserRemoved(msg.sender, user);
   }
 
   /// Adds a role to a grantee without any role checking

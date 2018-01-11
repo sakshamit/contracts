@@ -1,11 +1,11 @@
 export const REVERTED = "revert";
 export const events = {
-  APPROVED: "ContentApproved",
-  DENIED: "ContentDenied",
-  PROPOSED: "ContentProposed",
-  ROLE_ADDED: "RoleAdded",
-  ROLE_REMOVED: "RoleRemoved",
-  SUPERUSER_ADDDED: "SuperuserAdded",
-  SUPERUSER_REMOVED: "SuperuserRemoved",
+  ACL_ROLE_ADDED: "RoleAdded",
+  ACL_ROLE_REMOVED: "RoleRemoved",
+  ACL_SUPERUSER_ADDDED: "SuperuserAdded",
+  ACL_SUPERUSER_REMOVED: "SuperuserRemoved",
+  NEWSROOM_APPROVED: "ContentApproved",
+  NEWSROOM_DENIED: "ContentDenied",
+  NEWSROOM_PROPOSED: "ContentProposed",
 };
-export const TEST_ROLE = "testrole";
+export const ACL_TEST_ROLE = "testrole";
