@@ -1,5 +1,5 @@
 import * as chai from "chai";
-import { events, REVERTED, NEWSROOM_ROLE_EDITOR, NEWSROOM_ROLE_REPORTER } from "../utils/constants";
+import { events, NEWSROOM_ROLE_EDITOR, NEWSROOM_ROLE_REPORTER, REVERTED } from "../utils/constants";
 import ChaiConfig from "./utils/chaiconfig";
 import { findEvent, idFromEvent, is0x0Address, timestampFromTx } from "./utils/contractutils";
 
@@ -395,7 +395,7 @@ contract("Newsroom", (accounts: string[]) => {
     });
 
     it("doesn't work without superpowers", async () => {
-      await newsroom.addRole(accounts[2], ROLE_EDITOR);
+      await newsroom.addRole(accounts[2], NEWSROOM_ROLE_EDITOR);
 
       const removeDirector = newsroom.removeDirector(defaultAccount, { from: accounts[2] });
 
@@ -405,72 +405,72 @@ contract("Newsroom", (accounts: string[]) => {
 
   describe("addRole", () => {
     beforeEach(async () => {
-      await newsroom.addRole(accounts[1], ROLE_EDITOR);
+      await newsroom.addRole(accounts[1], NEWSROOM_ROLE_EDITOR);
     });
 
     it("works with superpowers", async () => {
-      const addRole = newsroom.addRole(accounts[2], ROLE_EDITOR);
+      const addRole = newsroom.addRole(accounts[2], NEWSROOM_ROLE_EDITOR);
 
       await expect(addRole).to.eventually.be.fulfilled();
-      expect(await newsroom.hasRole(accounts[2], ROLE_EDITOR)).to.be.true();
+      expect(await newsroom.hasRole(accounts[2], NEWSROOM_ROLE_EDITOR)).to.be.true();
     });
 
     it("works with editor role", async () => {
-      const addRole = newsroom.addRole(accounts[2], ROLE_EDITOR, { from: accounts[1] });
+      const addRole = newsroom.addRole(accounts[2], NEWSROOM_ROLE_EDITOR, { from: accounts[1] });
 
       await expect(addRole).to.eventually.be.fulfilled();
-      expect(await newsroom.hasRole(accounts[2], ROLE_EDITOR)).to.be.true();
+      expect(await newsroom.hasRole(accounts[2], NEWSROOM_ROLE_EDITOR)).to.be.true();
     });
 
     it("doesn't work without any role", async () => {
-      const addRole = newsroom.addRole(accounts[2], ROLE_EDITOR, { from: accounts[2] });
+      const addRole = newsroom.addRole(accounts[2], NEWSROOM_ROLE_EDITOR, { from: accounts[2] });
 
       await expect(addRole).to.eventually.be.rejectedWith(REVERTED);
-      expect(await newsroom.hasRole(accounts[2], ROLE_EDITOR)).to.be.false();
+      expect(await newsroom.hasRole(accounts[2], NEWSROOM_ROLE_EDITOR)).to.be.false();
     });
 
     it("doesn't work with reporter role", async () => {
-      await newsroom.addRole(accounts[2], ROLE_REPORTER);
-      const addRole = newsroom.addRole(accounts[2], ROLE_EDITOR, { from: accounts[2] });
+      await newsroom.addRole(accounts[2], NEWSROOM_ROLE_REPORTER);
+      const addRole = newsroom.addRole(accounts[2], NEWSROOM_ROLE_EDITOR, { from: accounts[2] });
 
       await expect(addRole).to.eventually.be.rejectedWith(REVERTED);
-      expect(await newsroom.hasRole(accounts[2], ROLE_REPORTER)).to.be.true();
-      expect(await newsroom.hasRole(accounts[2], ROLE_EDITOR)).to.be.false();
+      expect(await newsroom.hasRole(accounts[2], NEWSROOM_ROLE_REPORTER)).to.be.true();
+      expect(await newsroom.hasRole(accounts[2], NEWSROOM_ROLE_EDITOR)).to.be.false();
     });
   });
 
   describe("removeRole", () => {
     beforeEach(async () => {
-      await newsroom.addRole(accounts[1], ROLE_EDITOR);
+      await newsroom.addRole(accounts[1], NEWSROOM_ROLE_EDITOR);
     });
 
     it("works with superpowers", async () => {
-      const removeRole = newsroom.removeRole(accounts[1], ROLE_EDITOR);
+      const removeRole = newsroom.removeRole(accounts[1], NEWSROOM_ROLE_EDITOR);
 
       await expect(removeRole).to.eventually.be.fulfilled();
-      expect(await newsroom.hasRole(accounts[1], ROLE_EDITOR)).to.be.false();
+      expect(await newsroom.hasRole(accounts[1], NEWSROOM_ROLE_EDITOR)).to.be.false();
     });
 
     it("works with editor role", async () => {
-      const removeRole = newsroom.removeRole(accounts[1], ROLE_EDITOR, { from: accounts[1] });
+      const removeRole = newsroom.removeRole(accounts[1], NEWSROOM_ROLE_EDITOR, { from: accounts[1] });
 
       await expect(removeRole).to.eventually.be.fulfilled();
-      expect(await newsroom.hasRole(accounts[1], ROLE_EDITOR)).to.be.false();
+      expect(await newsroom.hasRole(accounts[1], NEWSROOM_ROLE_EDITOR)).to.be.false();
     });
 
     it("doesn't work without any role", async () => {
-      const removeRole = newsroom.removeRole(accounts[1], ROLE_EDITOR, { from: accounts[2] });
+      const removeRole = newsroom.removeRole(accounts[1], NEWSROOM_ROLE_EDITOR, { from: accounts[2] });
 
       await expect(removeRole).to.eventually.be.rejectedWith(REVERTED);
-      expect(await newsroom.hasRole(accounts[1], ROLE_EDITOR)).to.be.true();
+      expect(await newsroom.hasRole(accounts[1], NEWSROOM_ROLE_EDITOR)).to.be.true();
     });
 
     it("doesn't work with reporter role", async () => {
-      await newsroom.addRole(accounts[2], ROLE_REPORTER);
-      const removeRole = newsroom.removeRole(accounts[1], ROLE_EDITOR, { from: accounts[2] });
+      await newsroom.addRole(accounts[2], NEWSROOM_ROLE_REPORTER);
+      const removeRole = newsroom.removeRole(accounts[1], NEWSROOM_ROLE_EDITOR, { from: accounts[2] });
 
       await expect(removeRole).to.eventually.be.rejectedWith(REVERTED);
-      expect(await newsroom.hasRole(accounts[1], ROLE_EDITOR)).to.be.true();
+      expect(await newsroom.hasRole(accounts[1], NEWSROOM_ROLE_EDITOR)).to.be.true();
     });
   });
 });
