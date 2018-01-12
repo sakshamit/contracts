@@ -1,12 +1,12 @@
 pragma solidity 0.4.18;
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
-// TODO: extend Registry from https://github.com/skmgoldin/tcr/tree/master/contracts
-// TODO: extend ACL
+
 contract RegistryWithAppellate is Ownable {
+// TODO: Extend ACL & Registry (Mike Goldin)
 
   // -----
-  // BEGIN: Duplicated Registry Code.
+  // Duplicated Registry Code.
   // Remove when this contract extends Registry.
   // -----
   struct Listing {  
@@ -19,18 +19,17 @@ contract RegistryWithAppellate is Ownable {
   mapping(bytes32 => Listing) public listings;
 
   /// @dev returns true if listing is whitelisted
-  function isWhitelisted(bytes32 _listing) constant public returns (bool whitelisted) {
+  function isWhitelisted(bytes32 _listing) public view returns (bool whitelisted) {
     return listings[_listing].whitelisted;
   }
-
-  /// -----
-  /// END: Duplicated Registry Code
-  /// -----
 
   event AppealRequested(bytes32 indexed listing);
   event AppealGranted(bytes32 indexed listing);
   event AppealDenied(bytes32 indexed listing);
 
+  function listingOwner(bytes32 listing) public view returns (address) {
+    return listings[listing].owner;
+  }
 
   function timestampOfAppeal(bytes32 listing) public view returns (uint) {
     return listings[listing].timestamp;
