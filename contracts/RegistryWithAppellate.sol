@@ -4,11 +4,12 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract RegistryWithAppellate is Ownable {
 // TODO: Extend ACL & Registry (Mike Goldin)
+// https://github.com/skmgoldin/tcr/blob/master/contracts/Registry.sol
 
-  // -----
-  // Duplicated Registry Code.
-  // Remove when this contract extends Registry.
-  // -----
+  event AppealRequested(address indexed listing);
+  event AppealGranted(address indexed listing);
+  event AppealDenied(address indexed listing);
+
   struct Listing {  
     address owner; // owner of listing 
     uint timestamp;
@@ -16,26 +17,22 @@ contract RegistryWithAppellate is Ownable {
   }
 
   // Maps listingHashes to associated listing data
-  mapping(bytes32 => Listing) public listings;
+  mapping(address => Listing) public listings;
 
   /// @dev returns true if listing is whitelisted
-  function isWhitelisted(bytes32 _listing) public view returns (bool whitelisted) {
-    return listings[_listing].whitelisted;
+  function isWhitelisted(address listing) public view returns (bool whitelisted) {
+    return listings[listing].whitelisted;
   }
 
-  event AppealRequested(bytes32 indexed listing);
-  event AppealGranted(bytes32 indexed listing);
-  event AppealDenied(bytes32 indexed listing);
-
-  function listingOwner(bytes32 listing) public view returns (address) {
+  function listingOwner(address listing) public view returns (address) {
     return listings[listing].owner;
   }
 
-  function timestampOfAppeal(bytes32 listing) public view returns (uint) {
+  function timestampOfAppeal(address listing) public view returns (uint) {
     return listings[listing].timestamp;
   }
 
-  function submitAppeal(bytes32 listing) public returns (bytes32) {
+  function submitAppeal(address listing) public returns (address) {
     require(listings[listing].owner == 0x0);
     require(!listings[listing].whitelisted); 
 
@@ -48,7 +45,7 @@ contract RegistryWithAppellate is Ownable {
     return listing;
   }
 
-  function grantAppeal(bytes32 listing) public onlyOwner {
+  function grantAppeal(address listing) public onlyOwner {
     require(listings[listing].owner != 0x0);
     require(!listings[listing].whitelisted);
     listings[listing].whitelisted = true;
@@ -56,11 +53,10 @@ contract RegistryWithAppellate is Ownable {
     AppealGranted(listing);
   }
 
-  function denyAppeal(bytes32 listing) public onlyOwner {
+  function denyAppeal(address listing) public onlyOwner {
     require(listings[listing].owner != 0x0);
     require(!listings[listing].whitelisted);
-    listings[listing].owner = 0x0;
+    delete listings[listing];
     AppealDenied(listing);
   }
-
 }
