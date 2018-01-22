@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/joincivil/tcr
+	branch = civil_registry
+	commit = db1ba3629c977363aff652bb93cd37130cb8cbce
+	parent = 5075de2a179eef1a1089a7cf3ed696a0e9f3f730
+	cmdver = 0.3.1
