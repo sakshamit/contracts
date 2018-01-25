@@ -1,7 +1,12 @@
-import BN from "bignumber.js";
 // import * as abi from "ethereumjs-abi";
 import * as fs from "fs";
+import { promisify } from "util";
+// We're just using types from web3
+/* tslint:disable no-implicit-dependencies */
 import * as Web3 from "web3";
+/* tslint:enable no-implicit-dependencies */
+import { BigNumber } from "web3-typescript-typings/node_modules/bignumber.js";
+
 const Token = artifacts.require("tokens/eip20/EIP20");
 const DLL = artifacts.require("dll/DLL");
 const AttributeStore = artifacts.require("attrstore/AttributeStore");
@@ -9,11 +14,13 @@ const PLCRVoting = artifacts.require("PLCRVoting");
 const Parameterizer = artifacts.require("Parameterizer");
 const abi = require("ethereumjs-abi");
 
-export function findEvent(tx: any, eventName: string) {
+
+
+export function findEvent<T = any>(tx: any, eventName: string): Web3.DecodedLogEntry<T> {
   return tx.logs.find((log: any) => log.event === eventName);
 }
 
-export function idFromEvent(tx: any) {
+export function idFromEvent(tx: any): BigNumber | undefined {
   for (const log of tx.logs) {
     if (log.args.id) {
       return log.args.id;
@@ -26,22 +33,16 @@ export function getReceiptValue(receipt: any, arg: any) {
   return receipt.logs[0].args[arg];
 }
 
-export function is0x0Address(address: string) {
+export function is0x0Address(address: string): boolean {
   return address === "0x0" || address === "0x0000000000000000000000000000000000000000";
 }
 
-export function timestampFromTx(web3: Web3, tx: Web3.Transaction | Web3.TransactionReceipt) {
-  return new Promise((resolve, reject) => {
-    if (tx.blockNumber == null) {
-      return reject(new Error("Transaction not yet mined"));
-    }
-    web3.eth.getBlock(tx.blockNumber, (err, block) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(block.timestamp);
-    });
-  });
+export async function timestampFromTx(web3: Web3, tx: Web3.Transaction | Web3.TransactionReceipt): Promise<number> {
+  if (tx.blockNumber === null) {
+    throw new Error("Transaction not yet mined");
+  }
+  const getBlock = promisify<number, Web3.BlockWithoutTransactionData>(web3.eth.getBlock.bind(web3.eth));
+  return (await getBlock(tx.blockNumber)).timestamp;
 }
 
 export async function advanceEvmTime(time: number, account: string) {
@@ -92,13 +93,13 @@ export async function commitVote( voting: any,
 }
 
 export function divideAndGetWei(numerator: number, denominator: number) {
-  const weiNumerator = web3.toWei(new BN(numerator), "gwei");
-  return weiNumerator.div(new BN(denominator));
+  const weiNumerator = web3.toWei(new BigNumber(numerator), "gwei");
+  return weiNumerator.div(new BigNumber(denominator));
 }
 
-export function multiplyFromWei(x: number, weiBN: BN) {
-  const weiProduct = new BN(x).mul(weiBN);
-  return new BN(web3.fromWei(weiProduct, "gwei"));
+export function multiplyFromWei(x: number, weiBN: BigNumber) {
+  const weiProduct = new BigNumber(x).mul(weiBN);
+  return new BigNumber(web3.fromWei(weiProduct, "gwei"));
 }
 
 export function multiplyByPercentage(x: number, y: number, z = 100) {
@@ -106,20 +107,20 @@ export function multiplyByPercentage(x: number, y: number, z = 100) {
   return multiplyFromWei(x, weiQuotient);
 }
 
-export async function giveTokensTo( totalSupply: BN,
+export async function giveTokensTo( totalSupply: BigNumber,
                                     addresses: string[],
                                     accounts: string[],
                                     token: any,
                                   ): Promise<boolean> {
   const user = addresses[0];
-  const allocation = totalSupply.div(new BN(accounts.length, 10));
+  const allocation = totalSupply.div(new BigNumber(accounts.length, 10));
   await token.transfer(user, allocation);
 
   if (addresses.length === 1) { return true; }
   return await giveTokensTo(totalSupply, addresses.slice(1), accounts, token);
 }
 
-export async function createAndDistributeToken(totalSupply: BN, decimals: string, addresses: string[]): Promise<any> {
+export async function createAndDistributeToken(totalSupply: BigNumber, decimals: string, addresses: string[]): Promise<any> {
   const token = await Token.new(totalSupply, "TestCoin", decimals, "TEST");
   await giveTokensTo(totalSupply, addresses, addresses, token);
   return token;
@@ -152,7 +153,7 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
     return approveParameterizerFor(addresses.slice(1));
   }
 
-  const token = await createAndDistributeToken(new BN("1000000000000000000000000"), "18", accounts);
+  const token = await createAndDistributeToken(new BigNumber("1000000000000000000000000"), "18", accounts);
   console.log("1");
   const dll = await DLL.new();
   const attrstore = await AttributeStore.new();
