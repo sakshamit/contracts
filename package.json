@@ -8,7 +8,7 @@
     "build:typescript": "npm run lint:typescript; tsc",
     "build:solidity": "npm run lint:solidity; truffle compile",
     "lint": "npm run lint:typescript && npm run lint:solidity",
-    "test": "npm run compile && truffle test",
+    "test": "truffle install && npm run compile && truffle test",
     "lint:typescript": "tslint --project ./",
     "lint:solidity": "solhint contracts/**/*.sol",
     "strip-artifacts": "node build/scripts/strip-artifacts.js \"build/contracts/**/*.json\" build/artifacts",
