@@ -5,9 +5,7 @@ import ChaiConfig from "../utils/chaiconfig";
 import {  advanceEvmTime,
           commitVote,
           // createTestParameterizerInstance,
-          isEVMException,
           multiplyByPercentage,
-          proposeReparamAndGetPropID,
         } from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");

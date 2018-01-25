@@ -7,7 +7,6 @@ import {  advanceEvmTime,
           // createTestParameterizerInstance,
           isEVMException,
           multiplyByPercentage,
-          proposeReparamAndGetPropID,
         } from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");

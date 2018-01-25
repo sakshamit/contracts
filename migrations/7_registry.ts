@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 /* global artifacts */
 
 const AddressRegistry = artifacts.require("AddressRegistry.sol");
@@ -6,8 +8,6 @@ const Parameterizer = artifacts.require("Parameterizer.sol");
 const DLL = artifacts.require("dll/DLL.sol");
 const AttributeStore = artifacts.require("attrstore/AttributeStore.sol");
 const PLCRVoting = artifacts.require("PLCRVoting.sol");
-
-const fs = require("fs");
 
 module.exports = (deployer: any, network: any, accounts: string[]) => {
   async function approveRegistryFor(addresses: string[]): Promise<boolean> {
@@ -23,7 +23,9 @@ module.exports = (deployer: any, network: any, accounts: string[]) => {
   deployer.link(AttributeStore, AddressRegistry);
 
   return deployer.then(async () => {
-    const config = JSON.parse(fs.readFileSync("./conf/config.json"));
+    const config = JSON.parse(
+      fs.readFileSync("./conf/config.json")
+      .toString());
     let tokenAddress = config.TokenAddress;
 
     if (network !== "mainnet") {
@@ -37,9 +39,12 @@ module.exports = (deployer: any, network: any, accounts: string[]) => {
       Parameterizer.address,
     );
   })
-    .then(async () => {
-      if (network === "test") {
-        await approveRegistryFor(accounts);
-      }
-    }).catch((err: any) => { throw err; });
+  .then(async () => {
+    if (network === "test") {
+      await approveRegistryFor(accounts);
+    }
+  })
+  .catch((err: any) => {
+    throw err;
+  });
 };

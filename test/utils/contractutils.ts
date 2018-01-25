@@ -1,20 +1,22 @@
-// import * as abi from "ethereumjs-abi";
-import * as fs from "fs";
+// import * as fs from "fs";
 import { promisify } from "util";
 // We're just using types from web3
 /* tslint:disable no-implicit-dependencies */
 import * as Web3 from "web3";
 /* tslint:enable no-implicit-dependencies */
 import { BigNumber } from "web3-typescript-typings/node_modules/bignumber.js";
+/* tslint:disable no-var-requires */
+const abi = require("ethereumjs-abi");
+/* tslint:enable no-var-requires */
 
 const Token = artifacts.require("tokens/eip20/EIP20");
+
+/* TODO: fix createTestParameterizerInstance, which requires these artifacts
 const DLL = artifacts.require("dll/DLL");
 const AttributeStore = artifacts.require("attrstore/AttributeStore");
 const PLCRVoting = artifacts.require("PLCRVoting");
 const Parameterizer = artifacts.require("Parameterizer");
-const abi = require("ethereumjs-abi");
-
-
+*/
 
 export function findEvent<T = any>(tx: any, eventName: string): Web3.DecodedLogEntry<T> {
   return tx.logs.find((log: any) => log.event === eventName);
@@ -29,7 +31,7 @@ export function idFromEvent(tx: any): BigNumber | undefined {
   return undefined;
 }
 
-export function getReceiptValue(receipt: any, arg: any) {
+export function getReceiptValue(receipt: any, arg: any): any {
   return receipt.logs[0].args[arg];
 }
 
@@ -45,7 +47,7 @@ export async function timestampFromTx(web3: Web3, tx: Web3.Transaction | Web3.Tr
   return (await getBlock(tx.blockNumber)).timestamp;
 }
 
-export async function advanceEvmTime(time: number, account: string) {
+export async function advanceEvmTime(time: number, account: string): Promise<void> {
   await web3.currentProvider.send({ from: account,
                                     id: new Date().getSeconds(),
                                     jsonrpc: "2.0",
@@ -64,7 +66,7 @@ export async function proposeReparamAndGetPropID( propName: string,
                                                   propValue: string,
                                                   parameterizer: any,
                                                   account: string,
-                                                ) {
+                                                ): Promise<any> {
   const receipt = await parameterizer.proposeReparameterization(propName,
                                                                 propValue,
                                                                 { from: account });
@@ -83,7 +85,8 @@ export async function commitVote( voting: any,
                                   voteOption: string,
                                   tokensArg: string,
                                   salt: string,
-                                  voter: string) {
+                                  voter: string,
+                                ): Promise<void> {
 
   const hash = getVoteSaltHash(voteOption, salt);
   await voting.requestVotingRights(tokensArg, { from: voter });
@@ -92,17 +95,17 @@ export async function commitVote( voting: any,
   await voting.commitVote(pollID, hash, tokensArg, prevPollID, { from: voter });
 }
 
-export function divideAndGetWei(numerator: number, denominator: number) {
+export function divideAndGetWei(numerator: number, denominator: number): BigNumber {
   const weiNumerator = web3.toWei(new BigNumber(numerator), "gwei");
   return weiNumerator.div(new BigNumber(denominator));
 }
 
-export function multiplyFromWei(x: number, weiBN: BigNumber) {
+export function multiplyFromWei(x: number, weiBN: BigNumber): BigNumber {
   const weiProduct = new BigNumber(x).mul(weiBN);
   return new BigNumber(web3.fromWei(weiProduct, "gwei"));
 }
 
-export function multiplyByPercentage(x: number, y: number, z = 100) {
+export function multiplyByPercentage(x: number, y: number, z: number = 100): BigNumber {
   const weiQuotient = divideAndGetWei(y, z);
   return multiplyFromWei(x, weiQuotient);
 }
@@ -117,27 +120,24 @@ export async function giveTokensTo( totalSupply: BigNumber,
   await token.transfer(user, allocation);
 
   if (addresses.length === 1) { return true; }
-  return await giveTokensTo(totalSupply, addresses.slice(1), accounts, token);
+  return giveTokensTo(totalSupply, addresses.slice(1), accounts, token);
 }
 
-export async function createAndDistributeToken(totalSupply: BigNumber, decimals: string, addresses: string[]): Promise<any> {
+export async function createAndDistributeToken( totalSupply: BigNumber,
+                                                decimals: string,
+                                                addresses: string[],
+                                              ): Promise<any> {
   const token = await Token.new(totalSupply, "TestCoin", decimals, "TEST");
   await giveTokensTo(totalSupply, addresses, addresses, token);
   return token;
 }
 
+/* TODO: fix this, so we can deploy new parameterizers for each unit test
 export async function createTestParameterizerInstance(accounts: string[]): Promise<any> {
 
   async function approvePLCRFor(addresses: string[]): Promise<boolean> {
-    // const token = await Token.deployed();
     const user = addresses[0];
     const balanceOfUser = await token.balanceOf(user);
-
-    console.log("user: " + user);
-    console.log("balanceOfUser: " + balanceOfUser);
-    console.log("token: " + token);
-    console.log("token.address: " + token.address);
-    console.log("plcr.address: " + plcr.address);
 
     await token.approve(plcr.address, balanceOfUser, { from: user });
     if (addresses.length === 1) { return true; }
@@ -145,7 +145,6 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
   }
 
   async function approveParameterizerFor(addresses: string[]): Promise<boolean> {
-    // const token = await Token.deployed();
     const user = addresses[0];
     const balanceOfUser = await token.balanceOf(user);
     await token.approve(parameterizer.address, balanceOfUser, { from: user });
@@ -154,28 +153,21 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
   }
 
   const token = await createAndDistributeToken(new BigNumber("1000000000000000000000000"), "18", accounts);
-  console.log("1");
   const dll = await DLL.new();
   const attrstore = await AttributeStore.new();
 
-  console.log("2");
   PLCRVoting.link("dll", dll);
   PLCRVoting.link("attrstore", attrstore);
-  console.log("2a. dll: " + dll);
-  console.log("2a. dll.address: " + dll.address);
   const plcr = await PLCRVoting.new(token.address);
-  console.log("3 - plcr: " + plcr);
 
   await approvePLCRFor(accounts);
 
   const config = JSON.parse(fs.readFileSync("./conf/config.json").toString());
   const parameterizerConfig = config.paramDefaults;
 
-  console.log("4");
   Parameterizer.link(dll);
   Parameterizer.link(attrstore);
 
-  console.log("5");
   const parameterizer = await Parameterizer.new(
     token.address,
     plcr.address,
@@ -193,7 +185,6 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
     parameterizerConfig.pVoteQuorum,
   );
 
-  console.log("6");
-
   return parameterizer;
 }
+*/

@@ -7,7 +7,6 @@ import {  advanceEvmTime,
           commitVote,
           // createTestParameterizerInstance,
           multiplyByPercentage,
-          proposeReparamAndGetPropID,
         } from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");

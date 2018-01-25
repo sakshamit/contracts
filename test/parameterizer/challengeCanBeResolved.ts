@@ -1,4 +1,3 @@
-import * as BN from "bignumber.js";
 import * as chai from "chai";
 import * as fs from "fs";
 import ChaiConfig from "../utils/chaiconfig";

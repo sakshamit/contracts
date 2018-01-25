@@ -2,17 +2,13 @@ import BN from "bignumber.js";
 import * as chai from "chai";
 import * as fs from "fs";
 import ChaiConfig from "../utils/chaiconfig";
-import {  advanceEvmTime,
+import {
           commitVote,
           // createTestParameterizerInstance,
-          multiplyByPercentage,
-          proposeReparamAndGetPropID,
         } from "../utils/contractutils";
 
 const AddressRegistry = artifacts.require("AddressRegistry");
-const Parameterizer = artifacts.require("Parameterizer");
 const PLCRVoting = artifacts.require("PLCRVoting");
-const Token = artifacts.require("EIP20.sol");
 
 ChaiConfig();
 const expect = chai.expect;
@@ -23,22 +19,16 @@ contract("PLCRVoting", (accounts) => {
   describe("Function: commitVote", () => {
     const [applicant, challenger, voter, applicant2] = accounts;
     let registry: any;
-    let parameterizer: any;
     let voting: any;
-    let token: any;
 
     before(async () => {
       // await createTestParameterizerInstance(accounts);
       registry = await AddressRegistry.deployed();
-      parameterizer = await Parameterizer.deployed();
       voting = await PLCRVoting.deployed();
-      const tokenAddress = await parameterizer.token();
-      token = await Token.at(tokenAddress);
     });
 
     it("should correctly update DLL state", async () => {
       const minDeposit = new BN(paramConfig.minDeposit, 10);
-      const balance = await token.balanceOf(applicant);
 
       await registry.apply(minDeposit, "", { from: applicant });
       await registry.apply(minDeposit, "", { from: applicant2 });
@@ -51,7 +41,7 @@ contract("PLCRVoting", (accounts) => {
       await commitVote(voting, firstPollID, "1", "7", "420", voter);
       await commitVote(voting, secondPollID, "1", "8", "420", voter);
       await commitVote(voting, firstPollID, "1", "9", "420", voter);
-      
+
       const insertPoint = await voting.getInsertPointForNumTokens(voter, 6);
       const expectedInsertPoint = 0;
 

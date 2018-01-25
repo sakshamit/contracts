@@ -2,17 +2,13 @@ import BN from "bignumber.js";
 import * as chai from "chai";
 import * as fs from "fs";
 import ChaiConfig from "../utils/chaiconfig";
-import {  advanceEvmTime,
-          commitVote,
+import {
           // createTestParameterizerInstance,
           getReceiptValue,
           isEVMException,
-          multiplyByPercentage,
-          proposeReparamAndGetPropID,
         } from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");
-const PLCRVoting = artifacts.require("PLCRVoting");
 const Token = artifacts.require("EIP20.sol");
 
 ChaiConfig();
@@ -27,13 +23,11 @@ contract("Parameterizer", (accounts) => {
     const [proposer, secondProposer] = accounts;
     const pMinDeposit = bigTen(paramConfig.pMinDeposit);
     let parameterizer: any;
-    let voting: any;
     let token: any;
 
     before(async () => {
       // await createTestParameterizerInstance(accounts);
       parameterizer = await Parameterizer.deployed();
-      voting = await PLCRVoting.deployed();
       const tokenAddress = await parameterizer.token();
       token = await Token.at(tokenAddress);
     });
