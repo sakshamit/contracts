@@ -62,3 +62,6 @@ build/
 
 # DS_STORE
 *.DS_STORE
+
+# EthPM packages
+installed_contracts/
