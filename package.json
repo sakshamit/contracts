@@ -1,9 +1,9 @@
 {
   "name": "contracts",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Smart Contracts needed to make the ecosystem work",
   "scripts": {
-    "build": "npm run compile && npm run strip-artifacts",
+    "build": "truffle install && npm run compile && npm run strip-artifacts",
     "compile": "npm run build:solidity && npm run build:typescript",
     "build:typescript": "npm run lint:typescript; tsc",
     "build:solidity": "npm run lint:solidity; truffle compile",
