@@ -1,10 +1,10 @@
 import BN from "bignumber.js";
 import * as chai from "chai";
-import * as fs from "fs";
 import ChaiConfig from "../utils/chaiconfig";
 import {
           commitVote,
           // createTestParameterizerInstance,
+          paramConfig,
         } from "../utils/contractutils";
 
 const AddressRegistry = artifacts.require("AddressRegistry");
@@ -12,12 +12,12 @@ const PLCRVoting = artifacts.require("PLCRVoting");
 
 ChaiConfig();
 const expect = chai.expect;
-const config = JSON.parse(fs.readFileSync("./conf/config.json").toString());
-const paramConfig = config.paramDefaults;
 
 contract("PLCRVoting", (accounts) => {
   describe("Function: commitVote", () => {
     const [applicant, challenger, voter, applicant2] = accounts;
+    const listingAddress1 = "0x1a5cdcFBA600e0c669795e0B65c344D5A37a4d5A";
+    const listingAddress2 = "0x2a5cdcFBA600e0c669795e0B65c344D5A37a4d5A";
     let registry: any;
     let voting: any;
 
@@ -30,12 +30,12 @@ contract("PLCRVoting", (accounts) => {
     it("should correctly update DLL state", async () => {
       const minDeposit = new BN(paramConfig.minDeposit, 10);
 
-      await registry.apply(minDeposit, "", { from: applicant });
-      await registry.apply(minDeposit, "", { from: applicant2 });
+      await registry.apply(listingAddress1, minDeposit, "", { from: applicant });
+      await registry.apply(listingAddress2, minDeposit, "", { from: applicant2 });
 
-      const firstChallengeReceipt = await registry.challenge(applicant, "", { from: challenger });
+      const firstChallengeReceipt = await registry.challenge(listingAddress1, "", { from: challenger });
       const firstPollID = firstChallengeReceipt.logs[0].args.pollID;
-      const secondChallengeReceipt = await registry.challenge(applicant2, "", { from: challenger });
+      const secondChallengeReceipt = await registry.challenge(listingAddress2, "", { from: challenger });
       const secondPollID = secondChallengeReceipt.logs[0].args.pollID;
 
       await commitVote(voting, firstPollID, "1", "7", "420", voter);

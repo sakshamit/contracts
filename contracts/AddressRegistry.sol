@@ -22,10 +22,10 @@ contract AddressRegistry {
     event ChallengeSucceeded(uint challengeID);
     event RewardClaimed(address voter, uint challengeID, uint reward);
 
-    // listings are "self owned". The address associated with the listing is the owner.
     struct Listing {
         uint applicationExpiry; // Expiration date of apply stage
         bool whitelisted;       // Indicates registry status
+        address owner;          // Owner of listing
         uint unstakedDeposit;   // Number of tokens in the listing not locked in a challenge
         uint challengeID;       // Corresponds to a PollID in PLCRVoting
     }
@@ -50,6 +50,7 @@ contract AddressRegistry {
     PLCRVoting public voting;
     Parameterizer public parameterizer;
     string public version = '1';
+    uint constant NO_CHALLENGE = 0;
 
     // ------------
     // CONSTRUCTOR:
@@ -81,69 +82,74 @@ contract AddressRegistry {
     @param _amount      The number of ERC20 tokens a user is willing to potentially stake
     @param _data        Extra data relevant to the application. Think IPFS hashes.
     */
-    function apply(uint _amount, string _data) external {
-        require(!isWhitelisted(msg.sender));
-        require(!appWasMade(msg.sender));
+    function apply(address _listingAddress, uint _amount, string _data) external {
+        require(!isWhitelisted(_listingAddress));
+        require(!appWasMade(_listingAddress));
         require(_amount >= parameterizer.get("minDeposit"));
+        require(block.timestamp + parameterizer.get("applyStageLen") > block.timestamp); // avoid overflow  
 
         // Sets owner
-        Listing storage listingHash = listings[msg.sender];
+        Listing storage listing = listings[_listingAddress];
+        listing.owner = _listingAddress;
 
         // Transfers tokens from user to Registry contract
         require(token.transferFrom(msg.sender, this, _amount));
 
         // Sets apply stage end time
-        listingHash.applicationExpiry = block.timestamp + parameterizer.get("applyStageLen");
-        listingHash.unstakedDeposit = _amount;
+        listing.applicationExpiry = block.timestamp + parameterizer.get("applyStageLen");
+        listing.unstakedDeposit = _amount;
 
-        Application(msg.sender, _amount, _data);
+        Application(_listingAddress, _amount, _data);
     }
 
     /**
     @dev                Allows the owner of a listingHash to increase their unstaked deposit.
     @param _amount      The number of ERC20 tokens to increase a user's unstaked deposit
     */
-    function deposit(uint _amount) external {
-        Listing storage listingHash = listings[msg.sender];
+    function deposit(address _listingAddress, uint _amount) external {
+        Listing storage listing = listings[_listingAddress];
 
+        require(listing.owner == msg.sender);
         require(token.transferFrom(msg.sender, this, _amount));
 
-        listingHash.unstakedDeposit += _amount;
+        listing.unstakedDeposit += _amount;
 
-        Deposit(msg.sender, _amount, listingHash.unstakedDeposit);
+        Deposit(_listingAddress, _amount, listing.unstakedDeposit);
     }
 
     /**
     @dev                Allows the owner of a listingHash to decrease their unstaked deposit.
     @param _amount      The number of ERC20 tokens to withdraw from the unstaked deposit.
     */
-    function withdraw(uint _amount) external {
-        Listing storage listingHash = listings[msg.sender];
+    function withdraw(address _listingAddress, uint _amount) external {
+        Listing storage listing = listings[_listingAddress];
 
-        require(_amount <= listingHash.unstakedDeposit);
-        require(listingHash.unstakedDeposit - _amount >= parameterizer.get("minDeposit"));
+        require(listing.owner == msg.sender);
+        require(_amount <= listing.unstakedDeposit);
+        require(listing.unstakedDeposit - _amount >= parameterizer.get("minDeposit"));
 
         require(token.transfer(msg.sender, _amount));
 
-        listingHash.unstakedDeposit -= _amount;
+        listing.unstakedDeposit -= _amount;
 
-        Withdrawal(msg.sender, _amount, listingHash.unstakedDeposit);
+        Withdrawal(_listingAddress, _amount, listing.unstakedDeposit);
     }
 
     /**
     @dev                Allows the owner of a listing to remove the listingHash from the whitelist
                         Returns all tokens to the owner of the listing
     */
-    function exit() external {
-        Listing storage listing = listings[msg.sender];
+    function exit(address _listingAddress) external {
+        Listing storage listing = listings[_listingAddress];
 
-        require(isWhitelisted(msg.sender));
+        require(listing.owner == msg.sender);
+        require(isWhitelisted(_listingAddress));
 
         // Cannot exit during ongoing challenge
-        require(listing.challengeID == 0 || challenges[listing.challengeID].resolved);
+        require(listing.challengeID == NO_CHALLENGE || challenges[listing.challengeID].resolved);
 
         // Remove listingHash & return tokens
-        resetListing(msg.sender);
+        resetListing(_listingAddress);
     }
 
     // -----------------------
@@ -154,6 +160,8 @@ contract AddressRegistry {
     @dev                Starts a poll for a listingAddress which is either in the apply stage or
                         already in the whitelist. Tokens are taken from the challenger and the
                         applicant's deposits are locked.
+                        D elists listing and returns NO_CHALLENGE if listing's unstakedDeposit 
+                        is less than current minDeposit
     @param _listingAddress The listingAddress being challenged, whether listed or in application
     @param _data        Extra data relevant to the challenge. Think IPFS hashes.
     */
@@ -164,12 +172,12 @@ contract AddressRegistry {
         // Listing must be in apply stage or already on the whitelist
         require(appWasMade(_listingAddress) || listing.whitelisted);
         // Prevent multiple challenges
-        require(listing.challengeID == 0 || challenges[listing.challengeID].resolved);
+        require(listing.challengeID == NO_CHALLENGE || challenges[listing.challengeID].resolved);
 
         if (listing.unstakedDeposit < deposit) {
             // Not enough tokens, listing auto-delisted
             resetListing(_listingAddress);
-            return 0;
+            return NO_CHALLENGE;
         }
 
         // Takes tokens from challenger
@@ -281,7 +289,7 @@ contract AddressRegistry {
             appWasMade(_listingAddress) &&
             listings[_listingAddress].applicationExpiry < now &&
             !isWhitelisted(_listingAddress) &&
-            (challengeID == 0 || challenges[challengeID].resolved == true)
+            (challengeID == NO_CHALLENGE || challenges[challengeID].resolved == true)
         ) { return true; }
 
         return false;
@@ -310,7 +318,7 @@ contract AddressRegistry {
     function challengeExists(address _listingAddress) view public returns (bool) {
         uint challengeID = listings[_listingAddress].challengeID;
 
-        return (listings[_listingAddress].challengeID > 0 && !challenges[challengeID].resolved);
+        return (listings[_listingAddress].challengeID > NO_CHALLENGE && !challenges[challengeID].resolved);
     }
 
     /**
@@ -414,11 +422,11 @@ contract AddressRegistry {
     @param _listingAddress The listing to delete
     */
     function resetListing(address _listingAddress) private {
-        Listing storage listingHash = listings[_listingAddress];
+        Listing storage listing = listings[_listingAddress];
 
         // Transfers any remaining balance back to the owner
-        if (listingHash.unstakedDeposit > 0)
-            require(token.transfer(_listingAddress, listingHash.unstakedDeposit));
+        if (listing.unstakedDeposit > 0)
+            require(token.transfer(_listingAddress, listing.unstakedDeposit));
 
         delete listings[_listingAddress];
     }

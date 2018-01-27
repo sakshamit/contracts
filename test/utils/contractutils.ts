@@ -1,13 +1,11 @@
-// import * as fs from "fs";
+import abi = require("ethereumjs-abi");
+import * as fs from "fs";
 import { promisify } from "util";
 // We're just using types from web3
 /* tslint:disable no-implicit-dependencies */
 import * as Web3 from "web3";
 /* tslint:enable no-implicit-dependencies */
 import { BigNumber } from "web3-typescript-typings/node_modules/bignumber.js";
-/* tslint:disable no-var-requires */
-const abi = require("ethereumjs-abi");
-/* tslint:enable no-var-requires */
 
 const Token = artifacts.require("tokens/eip20/EIP20");
 
@@ -17,6 +15,9 @@ const AttributeStore = artifacts.require("attrstore/AttributeStore");
 const PLCRVoting = artifacts.require("PLCRVoting");
 const Parameterizer = artifacts.require("Parameterizer");
 */
+
+const config = JSON.parse(fs.readFileSync("./conf/config.json").toString());
+export const paramConfig = config.paramDefaults;
 
 export function findEvent<T = any>(tx: any, eventName: string): Web3.DecodedLogEntry<T> {
   return tx.logs.find((log: any) => log.event === eventName);

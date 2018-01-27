@@ -51,7 +51,7 @@ contract Parameterizer {
   // Global Variables
   EIP20 public token;
   PLCRVoting public voting;
-  uint public PROCESSBY = 604800; // 7 days
+  uint constant public PROCESSBY = 604800; // 7 days
 
   // ------------
   // CONSTRUCTOR

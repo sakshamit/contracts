@@ -1,9 +1,9 @@
 import * as chai from "chai";
-import * as fs from "fs";
 import ChaiConfig from "../utils/chaiconfig";
 import {  advanceEvmTime,
           commitVote,
           // createTestParameterizerInstance,
+          paramConfig,
           proposeReparamAndGetPropID,
         } from "../utils/contractutils";
 
@@ -12,8 +12,6 @@ const PLCRVoting = artifacts.require("PLCRVoting");
 
 ChaiConfig();
 const expect = chai.expect;
-const config = JSON.parse(fs.readFileSync("./conf/config.json").toString());
-const paramConfig = config.paramDefaults;
 
 contract("Parameterizer", (accounts) => {
   describe("voterReward", () => {

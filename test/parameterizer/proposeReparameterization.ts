@@ -1,11 +1,11 @@
 import BN from "bignumber.js";
 import * as chai from "chai";
-import * as fs from "fs";
 import ChaiConfig from "../utils/chaiconfig";
 import {
           // createTestParameterizerInstance,
           getReceiptValue,
           isEVMException,
+          paramConfig,
         } from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");
@@ -13,8 +13,6 @@ const Token = artifacts.require("EIP20.sol");
 
 ChaiConfig();
 const expect = chai.expect;
-const config = JSON.parse(fs.readFileSync("./conf/config.json").toString());
-const paramConfig = config.paramDefaults;
 
 const bigTen = (numberparam: number) => new BN(numberparam.toString(10), 10);
 
