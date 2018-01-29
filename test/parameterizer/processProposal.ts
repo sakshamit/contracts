@@ -56,7 +56,7 @@ contract("Parameterizer", (accounts) => {
       await parameterizer.processProposal(propID);
 
       const voteQuorum = await parameterizer.get("voteQuorum");
-      expect(voteQuorum.toString(10)).to.be.equal(
+      expect(voteQuorum).to.be.bignumber.equal(
         "51",
         "A proposal whose processBy date passed was able to update the parameterizer",
       );
@@ -87,15 +87,15 @@ contract("Parameterizer", (accounts) => {
       await parameterizer.processProposal(propID);
 
       const voteQuorum = await parameterizer.get("voteQuorum");
-      expect(voteQuorum.toString(10)).to.be.equal(
+      expect(voteQuorum).to.be.bignumber.equal(
         "51",
         "A proposal whose processBy date passed was able to update the parameterizer",
       );
 
       const proposerFinalBalance = await token.balanceOf(proposer);
       const proposerExpected = proposerStartingBalance.sub(new BN(paramConfig.pMinDeposit, 10));
-      expect(proposerFinalBalance.toString(10)).to.be.equal(
-        proposerExpected.toString(10),
+      expect(proposerFinalBalance).to.be.bignumber.equal(
+        proposerExpected,
         "The challenge loser\'s token balance is not as expected",
       );
 
@@ -103,8 +103,8 @@ contract("Parameterizer", (accounts) => {
       const winnings =
         multiplyByPercentage(paramConfig.pMinDeposit, paramConfig.pDispensationPct);
       const challengerExpected = challengerStartingBalance.add(winnings);
-      expect(challengerFinalBalance.toString(10)).to.be.equal(
-        challengerExpected.toString(10),
+      expect(challengerFinalBalance).to.be.bignumber.equal(
+        challengerExpected,
         "The challenge winner\'s token balance is not as expected",
       );
     });

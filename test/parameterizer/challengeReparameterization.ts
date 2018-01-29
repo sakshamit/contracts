@@ -45,16 +45,16 @@ contract("Parameterizer", (accounts) => {
       await parameterizer.processProposal(propID);
 
       const voteQuorum = await parameterizer.get("voteQuorum");
-      expect(voteQuorum.toString(10)).to.be.equal("50");
+      expect(voteQuorum).to.be.bignumber.equal("50");
 
       const proposerFinalBalance = await token.balanceOf(proposer);
       const proposerExpected = proposerStartingBalance.sub(new BN(paramConfig.pMinDeposit, 10));
-      expect(proposerFinalBalance.toString(10)).to.be.equal(proposerExpected.toString(10));
+      expect(proposerFinalBalance).to.be.bignumber.equal(proposerExpected);
 
       // Edge case, challenger gets both deposits back because there were no voters
       const challengerFinalBalance = await token.balanceOf(challenger);
       const challengerExpected = challengerStartingBalance.add(new BN(paramConfig.pMinDeposit, 10));
-      expect(challengerFinalBalance.toString(10)).to.be.equal(challengerExpected.toString(10));
+      expect(challengerFinalBalance).to.be.bignumber.equal(challengerExpected);
     });
 
     it("should set new parameters if a proposal wins a challenge", async () => {
@@ -77,16 +77,16 @@ contract("Parameterizer", (accounts) => {
       await parameterizer.processProposal(propID);
 
       const voteQuorum = await parameterizer.get("voteQuorum");
-      expect(voteQuorum.toString(10)).to.be.equal("51");
+      expect(voteQuorum).to.be.bignumber.equal("51");
 
       const proposerFinalBalance = await token.balanceOf(proposer);
       const winnings = multiplyByPercentage(paramConfig.pMinDeposit, paramConfig.pDispensationPct);
       const proposerExpected = proposerStartingBalance.add(winnings);
-      expect(proposerFinalBalance.toString(10)).to.be.equal(proposerExpected.toString(10));
+      expect(proposerFinalBalance).to.be.bignumber.equal(proposerExpected);
 
       const challengerFinalBalance = await token.balanceOf(challenger);
       const challengerExpected = challengerStartingBalance.sub(new BN(paramConfig.pMinDeposit, 10));
-      expect(challengerFinalBalance.toString(10)).to.be.equal(challengerExpected.toString(10));
+      expect(challengerFinalBalance).to.be.bignumber.equal(challengerExpected);
     });
   });
 });

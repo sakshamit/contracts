@@ -53,6 +53,8 @@ contract Parameterizer {
   PLCRVoting public voting;
   uint constant public PROCESSBY = 604800; // 7 days
 
+  uint constant NO_CHALLENGE = 0;
+
   // ------------
   // CONSTRUCTOR
   // ------------
@@ -148,7 +150,7 @@ contract Parameterizer {
     ParamProposal memory prop = proposals[_propID];
     uint deposit = get("pMinDeposit");
 
-    require(propExists(_propID) && prop.challengeID == 0); 
+    require(propExists(_propID) && prop.challengeID == NO_CHALLENGE); 
 
     //take tokens from challenger
     require(token.transferFrom(msg.sender, this, deposit));
@@ -262,7 +264,7 @@ contract Parameterizer {
     ParamProposal memory prop = proposals[_propID];
     Challenge memory challenge = challenges[prop.challengeID];
 
-    return (prop.challengeID > 0 && challenge.resolved == false &&
+    return (prop.challengeID > NO_CHALLENGE && challenge.resolved == false &&
             voting.pollEnded(prop.challengeID));
   }
 

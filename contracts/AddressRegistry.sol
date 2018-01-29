@@ -49,7 +49,7 @@ contract AddressRegistry {
     EIP20 public token;
     PLCRVoting public voting;
     Parameterizer public parameterizer;
-    string public version = '1';
+    uint public version = 1;
     uint constant NO_CHALLENGE = 0;
 
     // ------------

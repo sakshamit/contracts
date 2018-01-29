@@ -45,8 +45,8 @@ contract("PLCRVoting", (accounts) => {
       const insertPoint = await voting.getInsertPointForNumTokens(voter, 6);
       const expectedInsertPoint = 0;
 
-      expect(insertPoint.toString(10)).to.be.equal(
-        expectedInsertPoint.toString(10),
+      expect(insertPoint).to.be.bignumber.equal(
+        expectedInsertPoint,
         "The insert point was not correct",
       );
     });

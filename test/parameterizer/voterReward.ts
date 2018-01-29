@@ -48,8 +48,8 @@ contract("Parameterizer", (accounts) => {
       const expectedVoterReward = (voterTokens.mul(rewardPool)).div(totalTokens); // 250,000
       const voterReward = await parameterizer.voterReward(voterAlice, challengeID, "420");
 
-      expect(expectedVoterReward.toString(10)).to.be.equal(
-        voterReward.toString(10),
+      expect(expectedVoterReward).to.be.bignumber.equal(
+        voterReward,
         "voterReward should have equaled tokens * pool / total",
       );
     });

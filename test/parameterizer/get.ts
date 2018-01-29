@@ -17,7 +17,7 @@ contract("Parameterizer", () => {
 
     it("should get a parameter", async () => {
       const result = await parameterizer.get("minDeposit");
-      expect(result.toString()).to.be.equal(paramConfig.minDeposit.toString(), "minDeposit param has wrong value");
+      expect(result).to.be.bignumber.equal(paramConfig.minDeposit, "minDeposit param has wrong value");
     });
   });
 });

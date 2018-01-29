@@ -61,7 +61,7 @@ contract("Parameterizer", (accounts) => {
         paramConfig.pMinDeposit,
         bigTen(100).sub(bigTen(paramConfig.pDispensationPct)).toNumber(),
       ));
-      expect(voterAliceFinalBalance.toString(10)).to.be.equal(voterAliceExpected.toString(10));
+      expect(voterAliceFinalBalance).to.be.bignumber.equal(voterAliceExpected);
     });
 
     it("should give the correct number of tokens to multiple voters on the winning side.", async () => {
@@ -139,12 +139,12 @@ contract("Parameterizer", (accounts) => {
       const aliceEndingBalance = await token.balanceOf.call(voterAlice);
       const aliceExpected = aliceStartingBalance.sub(bigTen(10));
 
-      expect(proposerEndingBalance.toString(10)).to.be.equal(
-        proposerExpected.toString(10),
+      expect(proposerEndingBalance).to.be.bignumber.equal(
+        proposerExpected,
         "proposers ending balance is incorrect",
       );
-      expect(aliceEndingBalance.toString(10)).to.be.equal(
-        aliceExpected.toString(10),
+      expect(aliceEndingBalance).to.be.bignumber.equal(
+        aliceExpected,
         "alices ending balance is incorrect",
       );
     });

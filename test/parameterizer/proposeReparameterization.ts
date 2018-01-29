@@ -38,15 +38,15 @@ contract("Parameterizer", (accounts) => {
       const propID = getReceiptValue(receipt, "propID");
       const paramProposal = await parameterizer.proposals(propID);
 
-      expect(paramProposal[6].toString(10)).to.be.equal(
+      expect(paramProposal[6]).to.be.bignumber.equal(
         "51",
         "The reparameterization proposal was not created, or not created correctly.",
       );
 
       const applicantFinalBalance = await token.balanceOf.call(proposer);
       const expected = applicantStartingBalance.sub(pMinDeposit);
-      expect(applicantFinalBalance.toString(10)).to.be.equal(
-        expected.toString(10),
+      expect(applicantFinalBalance).to.be.bignumber.equal(
+        expected,
         "tokens were not properly transferred from proposer",
       );
     });
@@ -72,8 +72,8 @@ contract("Parameterizer", (accounts) => {
 
       const applicantEndingBalance = await token.balanceOf.call(secondProposer);
 
-      expect(applicantEndingBalance.toString(10)).to.be.equal(
-        applicantStartingBalance.toString(10),
+      expect(applicantEndingBalance).to.be.bignumber.equal(
+        applicantStartingBalance,
         "starting balance and ending balance should have been equal");
     });
   });
