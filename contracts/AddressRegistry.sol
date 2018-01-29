@@ -90,7 +90,7 @@ contract AddressRegistry {
 
         // Sets owner
         Listing storage listing = listings[_listingAddress];
-        listing.owner = _listingAddress;
+        listing.owner = msg.sender;
 
         // Transfers tokens from user to Registry contract
         require(token.transferFrom(msg.sender, this, _amount));
