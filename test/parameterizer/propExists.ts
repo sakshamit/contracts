@@ -1,8 +1,6 @@
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
-import {
-          proposeReparamAndGetPropID,
-        } from "../utils/contractutils";
+import * as utils from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");
 
@@ -20,7 +18,7 @@ contract("Parameterizer", (accounts) => {
     });
 
     it("should true if a proposal exists for the provided propID", async () => {
-      const propID = await proposeReparamAndGetPropID("voteQuorum", "51", parameterizer, proposer);
+      const propID = await utils.proposeReparamAndGetPropID("voteQuorum", "51", parameterizer, proposer);
       const result = await parameterizer.propExists(propID);
       expect(result).to.be.true("should have been true cause I literally just made the proposal");
     });

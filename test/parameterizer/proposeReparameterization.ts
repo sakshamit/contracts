@@ -1,12 +1,7 @@
 import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
-import {
-          // createTestParameterizerInstance,
-          getReceiptValue,
-          isEVMException,
-          paramConfig,
-        } from "../utils/contractutils";
+import * as utils from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");
 const Token = artifacts.require("EIP20.sol");
@@ -14,12 +9,10 @@ const Token = artifacts.require("EIP20.sol");
 ChaiConfig();
 const expect = chai.expect;
 
-const bigTen = (numberparam: number) => new BN(numberparam.toString(10), 10);
-
 contract("Parameterizer", (accounts) => {
   describe("proposeReparameterization", () => {
     const [proposer, secondProposer] = accounts;
-    const pMinDeposit = bigTen(paramConfig.pMinDeposit);
+    const pMinDeposit = utils.bigTen(utils.paramConfig.pMinDeposit);
     let parameterizer: any;
     let token: any;
 
@@ -35,7 +28,7 @@ contract("Parameterizer", (accounts) => {
 
       const receipt = await parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer });
 
-      const propID = getReceiptValue(receipt, "propID");
+      const propID = utils.getReceiptValue(receipt, "propID");
       const paramProposal = await parameterizer.proposals(propID);
 
       expect(paramProposal[6]).to.be.bignumber.equal(
@@ -56,7 +49,7 @@ contract("Parameterizer", (accounts) => {
         await parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer });
         expect(false).to.be.true("Performed NOOP reparameterization");
       } catch (err) {
-        expect(isEVMException(err)).to.be.true(err.toString());
+        expect(utils.isEVMException(err)).to.be.true(err.toString());
       }
     });
 
@@ -67,7 +60,7 @@ contract("Parameterizer", (accounts) => {
         await parameterizer.proposeReparameterization("voteQuorum", "51", { from: secondProposer });
         expect(false).to.be.true("should not have been able to make duplicate proposal");
       } catch (err) {
-        expect(isEVMException(err)).to.be.true(err.toString());
+        expect(utils.isEVMException(err)).to.be.true(err.toString());
       }
 
       const applicantEndingBalance = await token.balanceOf.call(secondProposer);

@@ -1,13 +1,7 @@
 import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
-import {  advanceEvmTime,
-          commitVote,
-          // createTestParameterizerInstance,
-          isEVMException,
-          multiplyByPercentage,
-          paramConfig,
-        } from "../utils/contractutils";
+import * as utils from "../utils/contractutils";
 
 const Parameterizer = artifacts.require("Parameterizer");
 const PLCRVoting = artifacts.require("PLCRVoting");
@@ -15,8 +9,6 @@ const Token = artifacts.require("EIP20.sol");
 
 ChaiConfig();
 const expect = chai.expect;
-
-const bigTen = (numberparam: number) => new BN(numberparam.toString(10), 10);
 
 contract("Parameterizer", (accounts) => {
   describe("claimReward", () => {
@@ -45,11 +37,11 @@ contract("Parameterizer", (accounts) => {
 
       const challengeID = challengeReceipt.logs[0].args.pollID;
 
-      await commitVote(voting, challengeID, "1", "10", "420", voterAlice);
-      await advanceEvmTime(paramConfig.pCommitStageLength + 1, accounts[0]);
+      await utils.commitVote(voting, challengeID, "1", "10", "420", voterAlice);
+      await utils.advanceEvmTime(utils.paramConfig.pCommitStageLength + 1);
 
       await voting.revealVote(challengeID, "1", "420", { from: voterAlice });
-      await advanceEvmTime(paramConfig.pRevealStageLength + 1, accounts[0]);
+      await utils.advanceEvmTime(utils.paramConfig.pRevealStageLength + 1);
 
       await parameterizer.processProposal(propID);
 
@@ -57,9 +49,9 @@ contract("Parameterizer", (accounts) => {
       await voting.withdrawVotingRights("10", { from: voterAlice });
 
       const voterAliceFinalBalance = await token.balanceOf.call(voterAlice);
-      const voterAliceExpected = voterAliceStartingBalance.add(multiplyByPercentage(
-        paramConfig.pMinDeposit,
-        bigTen(100).sub(bigTen(paramConfig.pDispensationPct)).toNumber(),
+      const voterAliceExpected = voterAliceStartingBalance.add(utils.multiplyByPercentage(
+        utils.paramConfig.pMinDeposit,
+        utils.bigTen(100).sub(utils.bigTen(utils.paramConfig.pDispensationPct)).toNumber(),
       ));
       expect(voterAliceFinalBalance).to.be.bignumber.equal(voterAliceExpected);
     });
@@ -74,13 +66,13 @@ contract("Parameterizer", (accounts) => {
 
         const challengeID = challengeReceipt.logs[0].args.pollID;
 
-        await commitVote(voting, challengeID, "1", "10", "420", voterAlice);
-        await commitVote(voting, challengeID, "1", "20", "420", voterBob);
-        await advanceEvmTime(paramConfig.pCommitStageLength + 1, accounts[0]);
+        await utils.commitVote(voting, challengeID, "1", "10", "420", voterAlice);
+        await utils.commitVote(voting, challengeID, "1", "20", "420", voterBob);
+        await utils.advanceEvmTime(utils.paramConfig.pCommitStageLength + 1);
 
         await voting.revealVote(challengeID, "1", "420", { from: voterAlice });
         await voting.revealVote(challengeID, "1", "420", { from: voterBob });
-        await advanceEvmTime(paramConfig.pRevealStageLength + 1, accounts[0]);
+        await utils.advanceEvmTime(utils.paramConfig.pRevealStageLength + 1);
 
         await parameterizer.processProposal(propID);
 
@@ -121,23 +113,23 @@ contract("Parameterizer", (accounts) => {
 
       const challengeID = challengeReceipt.logs[0].args.pollID;
 
-      await commitVote(voting, challengeID, "1", "10", "420", voterAlice);
-      await advanceEvmTime(paramConfig.pCommitStageLength + 1, accounts[0]);
+      await utils.commitVote(voting, challengeID, "1", "10", "420", voterAlice);
+      await utils.advanceEvmTime(utils.paramConfig.pCommitStageLength + 1);
 
       await voting.revealVote(challengeID, "1", "420", { from: voterAlice });
-      await advanceEvmTime(paramConfig.pRevealStageLength + 1, accounts[0]);
+      await utils.advanceEvmTime(utils.paramConfig.pRevealStageLength + 1);
 
       try {
         await parameterizer.claimReward(challengeID, "420", { from: voterAlice });
         expect(true).to.be.false("should not have been able to claimReward for unresolved challenge");
       } catch (err) {
-        expect(isEVMException(err)).to.be.true(err.toString());
+        expect(utils.isEVMException(err)).to.be.true(err.toString());
       }
 
       const proposerEndingBalance = await token.balanceOf.call(proposer);
-      const proposerExpected = proposerStartingBalance.sub(bigTen(paramConfig.pMinDeposit));
+      const proposerExpected = proposerStartingBalance.sub(utils.bigTen(utils.paramConfig.pMinDeposit));
       const aliceEndingBalance = await token.balanceOf.call(voterAlice);
-      const aliceExpected = aliceStartingBalance.sub(bigTen(10));
+      const aliceExpected = aliceStartingBalance.sub(utils.bigTen(10));
 
       expect(proposerEndingBalance).to.be.bignumber.equal(
         proposerExpected,
