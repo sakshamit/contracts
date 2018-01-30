@@ -1,4 +1,3 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
@@ -19,7 +18,7 @@ contract("Registry", (accounts) => {
 
     before(async () => {
       registry = await AddressRegistry.deployed();
-    })
+    });
 
     it("should return true if applicationExpiry was previously initialized", async () => {
       // Apply
@@ -52,4 +51,3 @@ contract("Registry", (accounts) => {
     });
   });
 });
-

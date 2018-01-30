@@ -1,10 +1,8 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
 const AddressRegistry = artifacts.require("AddressRegistry");
-const Parameterizer = artifacts.require("Parameterizer");
 const Token = artifacts.require("EIP20");
 const PLCRVoting = artifacts.require("PLCRVoting");
 
@@ -21,16 +19,14 @@ contract("Registry", (accounts) => {
     const listing11 = "0x0000000000000000000000000000000000000011";
     const listing12 = "0x0000000000000000000000000000000000000012";
     let registry: any;
-    let parameterizer: any;
     let token: any;
     let voting: any;
 
     before(async () => {
       registry = await AddressRegistry.deployed();
-      parameterizer = await Parameterizer.deployed();
       token = await Token.deployed();
       voting = await PLCRVoting.deployed();
-    })
+    });
 
     it("should transfer the correct number of tokens once a challenge has been resolved", async () => {
       // Apply

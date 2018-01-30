@@ -1,4 +1,3 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
@@ -59,4 +58,3 @@ contract("Registry", (accounts) => {
     });
   });
 });
-

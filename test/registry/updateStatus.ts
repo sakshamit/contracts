@@ -1,12 +1,8 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
 const AddressRegistry = artifacts.require("AddressRegistry");
-const Parameterizer = artifacts.require("Parameterizer");
-const Token = artifacts.require("EIP20");
-const PLCRVoting = artifacts.require("PLCRVoting");
 
 ChaiConfig();
 const expect = chai.expect;
@@ -79,7 +75,8 @@ contract("Registry", (accounts) => {
       }
     });
 
-    it("should not be possible to add a listing to the whitelist just by calling updateStatus after it has been previously removed", async () => {
+    it("should not be possible to add a listing to the whitelist just " +
+      "by calling updateStatus after it has been previously removed", async () => {
       await utils.addToWhitelist(listing26, minDeposit, applicant, registry);
       const resultOne = await registry.isWhitelisted(listing26);
       expect(resultOne).to.be.true("Listing should have been whitelisted");

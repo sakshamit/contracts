@@ -1,12 +1,8 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
 const AddressRegistry = artifacts.require("AddressRegistry");
-const Parameterizer = artifacts.require("Parameterizer");
-const Token = artifacts.require("EIP20");
-const PLCRVoting = artifacts.require("PLCRVoting");
 
 ChaiConfig();
 const expect = chai.expect;
@@ -22,16 +18,10 @@ contract("Registry", (accounts) => {
     const listing15 = "0x0000000000000000000000000000000000000015";
     const listing16 = "0x0000000000000000000000000000000000000016";
     let registry: any;
-    let parameterizer: any;
-    let token: any;
-    let voting: any;
 
     before(async () => {
       registry = await AddressRegistry.deployed();
-      parameterizer = await Parameterizer.deployed();
-      token = await Token.deployed();
-      voting = await PLCRVoting.deployed();
-    })
+    });
 
     it("should increase the deposit for a specific listing in the listing", async () => {
       await utils.addToWhitelist(listing13, minDeposit, applicant, registry);
@@ -47,16 +37,12 @@ contract("Registry", (accounts) => {
     it("should increase a deposit for a pending application", async () => {
       await registry.apply(listing14, minDeposit, "", { from: applicant });
 
-      //try {
-        await registry.deposit(listing14, incAmount, { from: applicant });
+      await registry.deposit(listing14, incAmount, { from: applicant });
 
-        const unstakedDeposit = await utils.getUnstakedDeposit(listing14, registry);
-        const expectedAmount = incAmount.add(minDeposit);
-        expect(unstakedDeposit).to.be.bignumber.equal(expectedAmount, "Deposit should have increased for pending application");
-      //} catch (err) {
-      //  const errMsg = err.toString();
-      //  expect(utils.isEVMException(err)).to.be.true(errMsg);
-      //}
+      const unstakedDeposit = await utils.getUnstakedDeposit(listing14, registry);
+      const expectedAmount = incAmount.add(minDeposit);
+      expect(unstakedDeposit).to.be.bignumber.equal(expectedAmount,
+        "Deposit should have increased for pending application");
     });
 
     it("should increase deposit for a whitelisted, challenged listing", async () => {
@@ -71,7 +57,8 @@ contract("Registry", (accounts) => {
 
       const expectedAmount = originalDeposit.add(incAmount).sub(minDeposit);
 
-      expect(afterIncDeposit).to.be.bignumber.equal(expectedAmount, "Deposit should have increased for whitelisted, challenged listing");
+      expect(afterIncDeposit).to.be.bignumber.equal(expectedAmount,
+        "Deposit should have increased for whitelisted, challenged listing");
     });
 
     it("should not increase deposit for a listing not owned by the msg.sender", async () => {

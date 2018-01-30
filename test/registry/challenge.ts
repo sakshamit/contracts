@@ -1,4 +1,3 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
@@ -29,7 +28,7 @@ contract("Registry", (accounts) => {
       parameterizer = await Parameterizer.deployed();
       token = await Token.deployed();
       voting = await PLCRVoting.deployed();
-    })
+    });
 
     it("should successfully challenge an application", async () => {
       const challengerStartingBalance = await token.balanceOf.call(challenger);
@@ -45,7 +44,7 @@ contract("Registry", (accounts) => {
       const challengerFinalBalance = await token.balanceOf.call(challenger);
       // Note edge case: no voters, so challenger gets entire stake
       const expectedFinalBalance =
-        challengerStartingBalance.add(new BN(utils.paramConfig.minDeposit, 10));
+        challengerStartingBalance.add(utils.bigTen(utils.paramConfig.minDeposit));
       expect(challengerFinalBalance).to.be.bignumber.equal(expectedFinalBalance,
         "Reward not properly disbursed to challenger",
       );
@@ -66,14 +65,14 @@ contract("Registry", (accounts) => {
       const challengerFinalBalance = await token.balanceOf.call(challenger);
       // Note edge case: no voters, so challenger gets entire stake
       const expectedFinalBalance =
-        challengerStartingBalance.add(new BN(utils.paramConfig.minDeposit, 10));
+        challengerStartingBalance.add(utils.bigTen(utils.paramConfig.minDeposit));
       expect(challengerFinalBalance).to.be.bignumber.equal(expectedFinalBalance,
         "Reward not properly disbursed to challenger",
       );
     });
 
     it("should unsuccessfully challenge an application", async () => {
-      const minDeposit = new BN(utils.paramConfig.minDeposit, 10);
+      const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
 
       await registry.apply(listing5, minDeposit, "", { from: applicant });
       const pollID = await utils.challengeAndGetPollID(listing5, challenger, registry);
@@ -98,7 +97,7 @@ contract("Registry", (accounts) => {
     });
 
     it("should unsuccessfully challenge a listing", async () => {
-      const minDeposit = new BN(utils.paramConfig.minDeposit, 10);
+      const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
 
       await utils.addToWhitelist(listing6, minDeposit, applicant, registry);
 
@@ -113,7 +112,8 @@ contract("Registry", (accounts) => {
       expect(isWhitelisted).to.be.true("An application which should have succeeded failed");
 
       const unstakedDeposit = await utils.getUnstakedDeposit(listing6, registry);
-      const expectedUnstakedDeposit = minDeposit.add(minDeposit.mul(utils.bigTen(utils.paramConfig.dispensationPct).div(utils.bigTen(100))));
+      const expectedUnstakedDeposit = minDeposit.add(
+        minDeposit.mul(utils.bigTen(utils.paramConfig.dispensationPct).div(utils.bigTen(100))));
       expect(unstakedDeposit).to.be.bignumber.equal(expectedUnstakedDeposit,
         "The challenge winner was not properly disbursed their tokens",
       );
@@ -149,4 +149,3 @@ contract("Registry", (accounts) => {
     });
   });
 });
-

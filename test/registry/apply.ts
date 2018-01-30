@@ -1,4 +1,3 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
@@ -16,7 +15,7 @@ contract("AddressRegistry", (accounts) => {
 
     before(async () => {
       registry = await AddressRegistry.deployed();
-    })
+    });
 
     it("should allow a new listing to apply", async () => {
       await registry.apply(listing1, utils.paramConfig.minDeposit, "", {from: applicant });
@@ -27,8 +26,7 @@ contract("AddressRegistry", (accounts) => {
       expect(result[0].gt(0)).to.be.true("challenge time < now");
       expect(result[1]).to.be.false("whitelisted != false");
       expect(result[2]).to.be.equal(applicant, "owner of application != address that applied");
-      expect(result[3]).to.be.bignumber.equal(utils.paramConfig.minDeposit,"incorrect unstakedDeposit",
-      );
+      expect(result[3]).to.be.bignumber.equal(utils.paramConfig.minDeposit, "incorrect unstakedDeposit");
     });
 
     it("should not allow a listing to apply which has a pending application", async () => {
@@ -62,4 +60,3 @@ contract("AddressRegistry", (accounts) => {
     });
   });
 });
-

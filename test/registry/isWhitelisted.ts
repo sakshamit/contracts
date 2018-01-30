@@ -1,12 +1,8 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
 const AddressRegistry = artifacts.require("AddressRegistry");
-const Parameterizer = artifacts.require("Parameterizer");
-const Token = artifacts.require("EIP20");
-const PLCRVoting = artifacts.require("PLCRVoting");
 
 ChaiConfig();
 const expect = chai.expect;

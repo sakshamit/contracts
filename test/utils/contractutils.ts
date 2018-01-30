@@ -49,13 +49,13 @@ export async function timestampFromTx(web3: Web3, tx: Web3.Transaction | Web3.Tr
 }
 
 export async function advanceEvmTime(time: number): Promise<void> {
-  await web3.currentProvider.send({ 
+  await web3.currentProvider.send({
     id: new Date().getSeconds(),
     jsonrpc: "2.0",
     method: "evm_increaseTime",
     params: [time],
   });
-  await web3.currentProvider.send({ 
+  await web3.currentProvider.send({
     id: new Date().getSeconds(),
     jsonrpc: "2.0",
     method: "evm_mine",
@@ -75,8 +75,8 @@ export async function proposeReparamAndGetPropID( propName: string,
 }
 
 export async function challengeAndGetPollID(
-  listing: string, 
-  account: string, 
+  listing: string,
+  account: string,
   registry: any,
 ): Promise<string> {
   const receipt = await registry.challenge(listing, "", { from: account });
@@ -84,8 +84,8 @@ export async function challengeAndGetPollID(
 }
 
 export async function challengeReparamAndGetPollID(
-  propID: string, 
-  account: string, 
+  propID: string,
+  account: string,
   parameterizer: any,
 ): Promise<string> {
   const receipt = await parameterizer.challengeReparameterization(propID, { from: account });
@@ -103,7 +103,7 @@ export async function addToWhitelist(
   await registry.updateStatus(listingAddress, { from: account });
 }
 
-export function bigTen(p:number):BigNumber {
+export function bigTen(p: number): BigNumber {
   return new BigNumber(p.toString(10), 10);
 }
 
@@ -116,7 +116,7 @@ export function isEVMException(err: any): boolean {
 
 export async function getUnstakedDeposit(
   listingAddress: string,
-  registry: any
+  registry: any,
 ): Promise<BigNumber> {
   const listing = await registry.listings(listingAddress);
   const unstakedDeposit = await listing[3];
