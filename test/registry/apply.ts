@@ -1,8 +1,7 @@
 import * as chai from "chai";
-import * as utils from "../utils/contractutils";
-
-import ChaiConfig from "../utils/chaiconfig";
 import { REVERTED } from "../../utils/constants";
+import ChaiConfig from "../utils/chaiconfig";
+import * as utils from "../utils/contractutils";
 
 const AddressRegistry = artifacts.require("AddressRegistry");
 
