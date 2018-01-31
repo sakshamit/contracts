@@ -3,8 +3,6 @@ import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
-const AddressRegistry = artifacts.require("AddressRegistry");
-
 ChaiConfig();
 const expect = chai.expect;
 
@@ -15,7 +13,7 @@ contract("AddressRegistry", (accounts) => {
     let registry: any;
 
     before(async () => {
-      registry = await AddressRegistry.deployed();
+      registry = await utils.createTestAddressRegistryInstance(accounts);
     });
 
     it("should allow a new listing to apply", async () => {

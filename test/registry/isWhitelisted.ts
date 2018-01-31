@@ -13,7 +13,7 @@ contract("Registry", (accounts) => {
     const listing19 = "0x0000000000000000000000000000000000000019";
     let registry: any;
     before(async () => {
-      registry = await AddressRegistry.deployed();
+      registry = await utils.createTestAddressRegistryInstance(accounts);
     });
 
     it("should verify a listing is not in the whitelist", async () => {

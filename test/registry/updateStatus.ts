@@ -3,8 +3,6 @@ import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
-const AddressRegistry = artifacts.require("AddressRegistry");
-
 ChaiConfig();
 const expect = chai.expect;
 
@@ -21,7 +19,7 @@ contract("Registry", (accounts) => {
     let registry: any;
 
     before(async () => {
-      registry = await AddressRegistry.deployed();
+      registry = await utils.createTestAddressRegistryInstance(accounts);
     });
 
     it("should whitelist listing if apply stage ended without a challenge", async () => {

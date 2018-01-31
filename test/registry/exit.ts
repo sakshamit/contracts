@@ -3,7 +3,6 @@ import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
-const AddressRegistry = artifacts.require("AddressRegistry");
 const Token = artifacts.require("EIP20");
 
 ChaiConfig();
@@ -18,8 +17,9 @@ contract("Registry", (accounts) => {
     let token: any;
 
     before(async () => {
-      registry = await AddressRegistry.deployed();
-      token = await Token.deployed();
+      registry = await utils.createTestAddressRegistryInstance(accounts);
+      const tokenAddress = await registry.token();
+      token = await Token.at(tokenAddress);
     });
 
     it("should allow a listing to exit when no challenge exists", async () => {

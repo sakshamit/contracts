@@ -9,12 +9,11 @@ import { BigNumber } from "web3-typescript-typings/node_modules/bignumber.js";
 
 const Token = artifacts.require("tokens/eip20/EIP20");
 
-/* TODO: fix createTestParameterizerInstance, which requires these artifacts
 const DLL = artifacts.require("dll/DLL");
 const AttributeStore = artifacts.require("attrstore/AttributeStore");
 const PLCRVoting = artifacts.require("PLCRVoting");
 const Parameterizer = artifacts.require("Parameterizer");
-*/
+const AddressRegistry = artifacts.require("AddressRegistry");
 
 const config = JSON.parse(fs.readFileSync("./conf/config.json").toString());
 export const paramConfig = config.paramDefaults;
@@ -172,7 +171,28 @@ export async function createAndDistributeToken( totalSupply: BigNumber,
   return token;
 }
 
-/* TODO: fix this, so we can deploy new parameterizers for each unit test
+export async function createTestAddressRegistryInstance(accounts: string[]): Promise<any> {
+  async function approveRegistryFor(addresses: string[]): Promise<boolean> {
+    const user = addresses[0];
+    const balanceOfUser = await token.balanceOf(user);
+    await token.approve(registry.address, balanceOfUser, { from: user });
+    if (addresses.length === 1) { return true; }
+    return approveRegistryFor(addresses.slice(1));
+  }
+
+  const parameterizer = await createTestParameterizerInstance(accounts);
+
+  const tokenAddress = await parameterizer.token();
+  const plcrAddress = await parameterizer.voting();
+  const parameterizerAddress = await parameterizer.address;
+  const token = await Token.at(tokenAddress);
+
+  const registry = await AddressRegistry.new(tokenAddress, plcrAddress, parameterizerAddress);
+  
+  await approveRegistryFor(accounts);
+  return registry;
+}
+
 export async function createTestParameterizerInstance(accounts: string[]): Promise<any> {
 
   async function approvePLCRFor(addresses: string[]): Promise<boolean> {
@@ -193,20 +213,19 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
   }
 
   const token = await createAndDistributeToken(new BigNumber("1000000000000000000000000"), "18", accounts);
-  const dll = await DLL.new();
-  const attrstore = await AttributeStore.new();
+  // const dll = await DLL.new();
+  // const attrstore = await AttributeStore.new();
 
-  PLCRVoting.link("dll", dll);
-  PLCRVoting.link("attrstore", attrstore);
+  // PLCRVoting.link("dll", dll);
+  // PLCRVoting.link("attrstore", attrstore);
   const plcr = await PLCRVoting.new(token.address);
 
   await approvePLCRFor(accounts);
 
-  const config = JSON.parse(fs.readFileSync("./conf/config.json").toString());
   const parameterizerConfig = config.paramDefaults;
 
-  Parameterizer.link(dll);
-  Parameterizer.link(attrstore);
+  // Parameterizer.link(dll);
+  // Parameterizer.link(attrstore);
 
   const parameterizer = await Parameterizer.new(
     token.address,
@@ -225,6 +244,6 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
     parameterizerConfig.pVoteQuorum,
   );
 
+  await approveParameterizerFor(accounts);
   return parameterizer;
 }
-*/
