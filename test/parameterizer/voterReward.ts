@@ -9,7 +9,7 @@ ChaiConfig();
 const expect = chai.expect;
 
 contract("Parameterizer", (accounts) => {
-  describe("voterReward", () => {
+  describe("Function: voterReward", () => {
     const [proposer, challenger, voterAlice] = accounts;
     let parameterizer: any;
     let voting: any;

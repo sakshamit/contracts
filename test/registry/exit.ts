@@ -1,4 +1,5 @@
 import * as chai from "chai";
+import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
@@ -49,13 +50,8 @@ contract("Registry", (accounts) => {
       expect(isWhitelisted).to.be.true("the listing was not added to the registry");
 
       await registry.challenge(listing18, "", { from: challenger });
-      try {
-        await registry.exitListing(listing18, { from: applicant });
-        expect(false).to.be.true("exit succeeded when it should have failed");
-      } catch (err) {
-        const errMsg = err.toString();
-        expect(utils.isEVMException(err)).to.be.true(errMsg);
-      }
+      await expect(registry.exitListing(listing18, { from: applicant }))
+      .to.eventually.be.rejectedWith(REVERTED, "exit succeeded when it should have failed");
 
       const isWhitelistedAfterExit = await registry.isWhitelisted(listing18);
       expect(isWhitelistedAfterExit).to.be.true(
@@ -75,13 +71,8 @@ contract("Registry", (accounts) => {
     it("should not allow a listing to be exited by someone who doesn\'t own it", async () => {
       await utils.addToWhitelist(listing18, utils.paramConfig.minDeposit, applicant, registry);
 
-      try {
-        await registry.exitListing(listing18, { from: voter });
-        expect(false).to.be.true("exit succeeded when it should have failed");
-      } catch (err) {
-        const errMsg = err.toString();
-        expect(utils.isEVMException(err)).to.be.true(errMsg);
-      }
+      await expect(registry.exitListing(listing18, { from: voter }))
+      .to.eventually.be.rejectedWith(REVERTED, "exit succeeded when it should have failed");
       const isWhitelistedAfterExit = await registry.isWhitelisted(listing18);
       expect(isWhitelistedAfterExit).to.be.true(
         "the listing was exited by someone other than its owner",

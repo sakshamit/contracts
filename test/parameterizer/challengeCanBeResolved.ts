@@ -8,7 +8,7 @@ ChaiConfig();
 const expect = chai.expect;
 
 contract("Parameterizer", (accounts) => {
-  describe("challengeCanBeResolved", () => {
+  describe("Function: challengeCanBeResolved", () => {
     const [proposer, challenger] = accounts;
     let parameterizer: any;
 

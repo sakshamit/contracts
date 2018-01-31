@@ -1,5 +1,5 @@
-import BN from "bignumber.js";
 import * as chai from "chai";
+import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
@@ -11,7 +11,7 @@ ChaiConfig();
 const expect = chai.expect;
 
 contract("Parameterizer", (accounts) => {
-  describe("claimReward", () => {
+  describe("Function: claimReward", () => {
     const [proposer, challenger, voterAlice, voterBob] = accounts;
     let parameterizer: any;
     let voting: any;
@@ -51,7 +51,7 @@ contract("Parameterizer", (accounts) => {
       const voterAliceFinalBalance = await token.balanceOf.call(voterAlice);
       const voterAliceExpected = voterAliceStartingBalance.add(utils.multiplyByPercentage(
         utils.paramConfig.pMinDeposit,
-        utils.bigTen(100).sub(utils.bigTen(utils.paramConfig.pDispensationPct)).toNumber(),
+        utils.toBaseTenBigNumber(100).sub(utils.toBaseTenBigNumber(utils.paramConfig.pDispensationPct)).toNumber(),
       ));
       expect(voterAliceFinalBalance).to.be.bignumber.equal(voterAliceExpected);
     });
@@ -92,7 +92,7 @@ contract("Parameterizer", (accounts) => {
 
         // TODO: do better than approximately.
         expect(voterBobReward.toNumber(10)).to.be.closeTo(
-          voterAliceReward.mul(new BN("2", 10)).toNumber(10),
+          voterAliceReward.mul(utils.toBaseTenBigNumber(2)).toNumber(10),
           2,
           "Rewards were not properly distributed between voters",
         );
@@ -119,17 +119,13 @@ contract("Parameterizer", (accounts) => {
       await voting.revealVote(challengeID, "1", "420", { from: voterAlice });
       await utils.advanceEvmTime(utils.paramConfig.pRevealStageLength + 1);
 
-      try {
-        await parameterizer.claimReward(challengeID, "420", { from: voterAlice });
-        expect(true).to.be.false("should not have been able to claimReward for unresolved challenge");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(parameterizer.claimReward(challengeID, "420", { from: voterAlice }))
+        .to.eventually.be.rejectedWith(REVERTED);
 
       const proposerEndingBalance = await token.balanceOf.call(proposer);
-      const proposerExpected = proposerStartingBalance.sub(utils.bigTen(utils.paramConfig.pMinDeposit));
+      const proposerExpected = proposerStartingBalance.sub(utils.toBaseTenBigNumber(utils.paramConfig.pMinDeposit));
       const aliceEndingBalance = await token.balanceOf.call(voterAlice);
-      const aliceExpected = aliceStartingBalance.sub(utils.bigTen(10));
+      const aliceExpected = aliceStartingBalance.sub(utils.toBaseTenBigNumber(10));
 
       expect(proposerEndingBalance).to.be.bignumber.equal(
         proposerExpected,

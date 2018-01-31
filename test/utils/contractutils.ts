@@ -1,7 +1,7 @@
 import abi = require("ethereumjs-abi");
 import * as fs from "fs";
 import { promisify } from "util";
-// We"re just using types from web3
+// We're just using types from web3
 /* tslint:disable no-implicit-dependencies */
 import * as Web3 from "web3";
 /* tslint:enable no-implicit-dependencies */
@@ -103,15 +103,12 @@ export async function addToWhitelist(
   await registry.updateStatus(listingAddress, { from: account });
 }
 
-export function bigTen(p: number): BigNumber {
+export function toBaseTenBigNumber(p: number): BigNumber {
   return new BigNumber(p.toString(10), 10);
 }
 
 export function getVoteSaltHash(vote: string, salt: string): string {
   return `0x${abi.soliditySHA3(["uint", "uint"], [vote, salt]).toString("hex")}`;
-}
-export function isEVMException(err: any): boolean {
-  return err.toString().includes("revert");
 }
 
 export async function getUnstakedDeposit(

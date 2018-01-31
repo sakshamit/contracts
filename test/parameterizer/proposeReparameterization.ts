@@ -1,4 +1,5 @@
 import * as chai from "chai";
+import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
@@ -9,9 +10,9 @@ ChaiConfig();
 const expect = chai.expect;
 
 contract("Parameterizer", (accounts) => {
-  describe("proposeReparameterization", () => {
+  describe("Function: proposeReparameterization", () => {
     const [proposer, secondProposer] = accounts;
-    const pMinDeposit = utils.bigTen(utils.paramConfig.pMinDeposit);
+    const pMinDeposit = utils.toBaseTenBigNumber(utils.paramConfig.pMinDeposit);
     let parameterizer: any;
     let token: any;
 
@@ -44,23 +45,15 @@ contract("Parameterizer", (accounts) => {
     });
 
     it("should not allow a NOOP reparameterization", async () => {
-      try {
-        await parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer });
-        expect(false).to.be.true("Performed NOOP reparameterization");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+        await expect(parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer }))
+        .to.eventually.be.rejectedWith(REVERTED, "Performed NOOP reparameterization");
     });
 
     it("should not allow a reparameterization for a proposal that already exists", async () => {
       const applicantStartingBalance = await token.balanceOf.call(secondProposer);
 
-      try {
-        await parameterizer.proposeReparameterization("voteQuorum", "51", { from: secondProposer });
-        expect(false).to.be.true("should not have been able to make duplicate proposal");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(parameterizer.proposeReparameterization("voteQuorum", "51", { from: secondProposer }))
+      .to.eventually.be.rejectedWith(REVERTED, "should not have been able to make duplicate proposal");
 
       const applicantEndingBalance = await token.balanceOf.call(secondProposer);
 

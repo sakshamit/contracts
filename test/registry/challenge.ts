@@ -44,7 +44,7 @@ contract("Registry", (accounts) => {
       const challengerFinalBalance = await token.balanceOf.call(challenger);
       // Note edge case: no voters, so challenger gets entire stake
       const expectedFinalBalance =
-        challengerStartingBalance.add(utils.bigTen(utils.paramConfig.minDeposit));
+        challengerStartingBalance.add(utils.toBaseTenBigNumber(utils.paramConfig.minDeposit));
       expect(challengerFinalBalance).to.be.bignumber.equal(expectedFinalBalance,
         "Reward not properly disbursed to challenger",
       );
@@ -65,14 +65,14 @@ contract("Registry", (accounts) => {
       const challengerFinalBalance = await token.balanceOf.call(challenger);
       // Note edge case: no voters, so challenger gets entire stake
       const expectedFinalBalance =
-        challengerStartingBalance.add(utils.bigTen(utils.paramConfig.minDeposit));
+        challengerStartingBalance.add(utils.toBaseTenBigNumber(utils.paramConfig.minDeposit));
       expect(challengerFinalBalance).to.be.bignumber.equal(expectedFinalBalance,
         "Reward not properly disbursed to challenger",
       );
     });
 
     it("should unsuccessfully challenge an application", async () => {
-      const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
+      const minDeposit = utils.toBaseTenBigNumber(utils.paramConfig.minDeposit);
 
       await registry.apply(listing5, minDeposit, "", { from: applicant });
       const pollID = await utils.challengeAndGetPollID(listing5, challenger, registry);
@@ -97,7 +97,7 @@ contract("Registry", (accounts) => {
     });
 
     it("should unsuccessfully challenge a listing", async () => {
-      const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
+      const minDeposit = utils.toBaseTenBigNumber(utils.paramConfig.minDeposit);
 
       await utils.addToWhitelist(listing6, minDeposit, applicant, registry);
 
@@ -113,15 +113,15 @@ contract("Registry", (accounts) => {
 
       const unstakedDeposit = await utils.getUnstakedDeposit(listing6, registry);
       const expectedUnstakedDeposit = minDeposit.add(
-        minDeposit.mul(utils.bigTen(utils.paramConfig.dispensationPct).div(utils.bigTen(100))));
+        minDeposit.mul(utils.toBaseTenBigNumber(utils.paramConfig.dispensationPct).div(utils.toBaseTenBigNumber(100))));
       expect(unstakedDeposit).to.be.bignumber.equal(expectedUnstakedDeposit,
         "The challenge winner was not properly disbursed their tokens",
       );
     });
 
     it("should touch-and-remove a listing with a depost below the current minimum", async () => {
-      const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
-      const newMinDeposit = minDeposit.add(utils.bigTen(1));
+      const minDeposit = utils.toBaseTenBigNumber(utils.paramConfig.minDeposit);
+      const newMinDeposit = minDeposit.add(utils.toBaseTenBigNumber(1));
 
       const applicantStartingBal = await token.balanceOf(applicant);
 

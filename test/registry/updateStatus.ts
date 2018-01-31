@@ -1,4 +1,5 @@
 import * as chai from "chai";
+import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
@@ -10,7 +11,7 @@ const expect = chai.expect;
 contract("Registry", (accounts) => {
   describe("Function: updateStatus", () => {
     const [applicant, challenger] = accounts;
-    const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
+    const minDeposit = utils.toBaseTenBigNumber(utils.paramConfig.minDeposit);
     const listing21 = "0x0000000000000000000000000000000000000021";
     const listing22 = "0x0000000000000000000000000000000000000022";
     const listing23 = "0x0000000000000000000000000000000000000023";
@@ -34,24 +35,16 @@ contract("Registry", (accounts) => {
     it("should not whitelist a listing that is still pending an application", async () => {
       await registry.apply(listing22, minDeposit, "", { from: applicant });
 
-      try {
-        await registry.updateStatus(listing22, { from: applicant });
-        expect(false).to.be.true("Listing should not have been whitelisted");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(registry.updateStatus(listing22, { from: applicant }))
+      .to.be.rejectedWith(REVERTED, "Listing should not have been whitelisted");
     });
 
     it("should not whitelist a listing that is currently being challenged", async () => {
       await registry.apply(listing23, minDeposit, "", { from: applicant });
       await registry.challenge(listing23, "", { from: challenger });
 
-      try {
-        await registry.updateStatus(listing23);
-        expect(false).to.be.true("Listing should not have been whitelisted");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(registry.updateStatus(listing23))
+      .to.eventually.be.rejectedWith(REVERTED, "Listing should not have been whitelisted");
     });
 
     it("should not whitelist a listing that failed a challenge", async () => {
@@ -67,12 +60,8 @@ contract("Registry", (accounts) => {
     });
 
     it("should not be possible to add a listing to the whitelist just by calling updateStatus", async () => {
-      try {
-        await registry.updateStatus(listing25, { from: applicant });
-        expect(false).to.be.true("Listing should not have been whitelisted");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(registry.updateStatus(listing25, { from: applicant }))
+      .to.eventually.be.rejectedWith(REVERTED, "Listing should not have been whitelisted");
     });
 
     it("should not be possible to add a listing to the whitelist just " +
@@ -85,12 +74,8 @@ contract("Registry", (accounts) => {
       const resultTwo = await registry.isWhitelisted(listing26);
       expect(resultTwo).to.be.false("Listing should not be in the whitelist");
 
-      try {
-        await registry.updateStatus(listing26, { from: applicant });
-        expect(false).to.be.true("Listing should not have been whitelisted");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(registry.updateStatus(listing26, { from: applicant }))
+      .to.eventually.be.rejectedWith(REVERTED, "Listing should not have been whitelisted");
     });
   });
 });

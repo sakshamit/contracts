@@ -10,7 +10,7 @@ const expect = chai.expect;
 
 contract("Registry", (accounts) => {
   describe("Function: tokenClaims", () => {
-    const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
+    const minDeposit = utils.toBaseTenBigNumber(utils.paramConfig.minDeposit);
     const [applicant, challenger, voter] = accounts;
     const listing20 = "0x0000000000000000000000000000000000000020";
     let registry: any;

@@ -1,4 +1,5 @@
 import * as chai from "chai";
+import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
@@ -9,8 +10,8 @@ const expect = chai.expect;
 
 contract("Registry", (accounts) => {
   describe("Function: deposit", () => {
-    const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
-    const incAmount = minDeposit.div(utils.bigTen(2));
+    const minDeposit = utils.toBaseTenBigNumber(utils.paramConfig.minDeposit);
+    const incAmount = minDeposit.div(utils.toBaseTenBigNumber(2));
     const [applicant, challenger] = accounts;
 
     const listing13 = "0x0000000000000000000000000000000000000013";
@@ -64,12 +65,8 @@ contract("Registry", (accounts) => {
     it("should not increase deposit for a listing not owned by the msg.sender", async () => {
       await utils.addToWhitelist(listing16, minDeposit, applicant, registry);
 
-      try {
-        await registry.deposit(listing16, incAmount, { from: challenger });
-        expect(false).to.be.true("Deposit should not have increased when sent by the wrong msg.sender");
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(registry.deposit(listing16, incAmount, { from: challenger }))
+      .to.eventually.be.rejectedWith(REVERTED, "Deposit should not have increased when sent by the wrong msg.sender");
     });
   });
 });

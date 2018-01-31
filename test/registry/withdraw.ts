@@ -1,4 +1,5 @@
 import * as chai from "chai";
+import { REVERTED } from "../../utils/constants";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
@@ -9,8 +10,8 @@ const expect = chai.expect;
 
 contract("Registry", (accounts) => {
   describe("Function: withdraw", () => {
-    const minDeposit = utils.bigTen(utils.paramConfig.minDeposit);
-    const withdrawAmount = minDeposit.div(utils.bigTen(2));
+    const minDeposit = utils.toBaseTenBigNumber(utils.paramConfig.minDeposit);
+    const withdrawAmount = minDeposit.div(utils.toBaseTenBigNumber(2));
     const [applicant, challenger] = accounts;
     const dontChallengeListing = "0x0000000000000000000000000000000000000014";
     const listing13 = "0x00000000000000000000000000000000000000013";
@@ -26,12 +27,8 @@ contract("Registry", (accounts) => {
       await utils.addToWhitelist(dontChallengeListing, minDeposit, applicant, registry);
       const origDeposit = await utils.getUnstakedDeposit(dontChallengeListing, registry);
 
-      try {
-        await registry.withdraw(dontChallengeListing, withdrawAmount, { from: applicant });
-        expect(false).to.be.true(errMsg);
-      } catch (err) {
-        expect(utils.isEVMException(err)).to.be.true(err.toString());
-      }
+      await expect(registry.withdraw(dontChallengeListing, withdrawAmount, { from: applicant }))
+      .to.eventually.be.rejectedWith(REVERTED);
 
       const afterWithdrawDeposit = await utils.getUnstakedDeposit(dontChallengeListing, registry);
 
@@ -43,14 +40,10 @@ contract("Registry", (accounts) => {
       await utils.addToWhitelist(listing13, minDeposit, applicant, registry);
       await registry.challenge(listing13, "", { from: challenger });
 
-      try {
-        // Attempt to withdraw; should fail
-        await registry.withdraw(listing13, withdrawAmount, { from: applicant });
-        expect(false).to.be.true("Applicant should not have been able to withdraw from a challenged, locked listing");
-      } catch (err) {
-        const errMsg = err.toString();
-        expect(utils.isEVMException(err)).to.be.true(errMsg);
-      }
+      // Attempt to withdraw; should fail
+      await expect(registry.withdraw(listing13, withdrawAmount, { from: applicant }))
+      .to.eventually.be.rejectedWith(REVERTED,
+        "Applicant should not have been able to withdraw from a challenged, locked listing");
       // TODO: check balance
       // TODO: apply, gets challenged, and then minDeposit lowers during challenge.
       // still shouldn"t be able to withdraw anything.

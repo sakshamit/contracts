@@ -8,7 +8,7 @@ ChaiConfig();
 const expect = chai.expect;
 
 contract("Parameterizer", (accounts) => {
-  describe("propExists", () => {
+  describe("Function: propExists", () => {
     const [proposer] = accounts;
     let parameterizer: any;
 

@@ -11,7 +11,7 @@ ChaiConfig();
 const expect = chai.expect;
 
 contract("Parameterizer", (accounts) => {
-  describe("processProposal", () => {
+  describe("Function: processProposal", () => {
     const [proposer, challenger, voter] = accounts;
     let parameterizer: any;
     let voting: any;
