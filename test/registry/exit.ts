@@ -16,7 +16,7 @@ contract("Registry", (accounts) => {
     let registry: any;
     let token: any;
 
-    before(async () => {
+    beforeEach(async () => {
       registry = await utils.createTestAddressRegistryInstance(accounts);
       const tokenAddress = await registry.token();
       token = await Token.at(tokenAddress);

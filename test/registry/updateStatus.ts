@@ -18,7 +18,7 @@ contract("Registry", (accounts) => {
     const listing26 = "0x0000000000000000000000000000000000000026";
     let registry: any;
 
-    before(async () => {
+    beforeEach(async () => {
       registry = await utils.createTestAddressRegistryInstance(accounts);
     });
 

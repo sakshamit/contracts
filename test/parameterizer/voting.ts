@@ -16,7 +16,7 @@ contract("PLCRVoting", (accounts) => {
     let registry: any;
     let voting: any;
 
-    before(async () => {
+    beforeEach(async () => {
       registry = await utils.createTestAddressRegistryInstance(accounts);
       const votingAddress = await registry.voting();
       voting = await PLCRVoting.at(votingAddress);

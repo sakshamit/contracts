@@ -15,7 +15,7 @@ contract("Parameterizer", (accounts) => {
     let parameterizer: any;
     let token: any;
 
-    before(async () => {
+    beforeEach(async () => {
       parameterizer = await utils.createTestParameterizerInstance(accounts);
       const tokenAddress = await parameterizer.token();
       token = await Token.at(tokenAddress);
@@ -43,13 +43,15 @@ contract("Parameterizer", (accounts) => {
     });
 
     it("should not allow a NOOP reparameterization", async () => {
-        await expect(parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer }))
-        .to.eventually.be.rejectedWith(REVERTED, "Performed NOOP reparameterization");
+      await parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer });
+      await expect(parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer }))
+      .to.eventually.be.rejectedWith(REVERTED, "Performed NOOP reparameterization");
     });
 
     it("should not allow a reparameterization for a proposal that already exists", async () => {
       const applicantStartingBalance = await token.balanceOf.call(secondProposer);
 
+      await parameterizer.proposeReparameterization("voteQuorum", "51", { from: proposer });
       await expect(parameterizer.proposeReparameterization("voteQuorum", "51", { from: secondProposer }))
       .to.eventually.be.rejectedWith(REVERTED, "should not have been able to make duplicate proposal");
 

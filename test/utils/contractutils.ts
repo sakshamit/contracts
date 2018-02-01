@@ -9,8 +9,6 @@ import { BigNumber } from "web3-typescript-typings/node_modules/bignumber.js";
 
 const Token = artifacts.require("tokens/eip20/EIP20");
 
-const DLL = artifacts.require("dll/DLL");
-const AttributeStore = artifacts.require("attrstore/AttributeStore");
 const PLCRVoting = artifacts.require("PLCRVoting");
 const Parameterizer = artifacts.require("Parameterizer");
 const AddressRegistry = artifacts.require("AddressRegistry");
@@ -188,7 +186,7 @@ export async function createTestAddressRegistryInstance(accounts: string[]): Pro
   const token = await Token.at(tokenAddress);
 
   const registry = await AddressRegistry.new(tokenAddress, plcrAddress, parameterizerAddress);
-  
+
   await approveRegistryFor(accounts);
   return registry;
 }

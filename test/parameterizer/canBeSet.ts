@@ -10,7 +10,7 @@ contract("Parameterizer", (accounts: string[]) => {
     const proposer = accounts[0];
     let parameterizer: any;
 
-    before(async () => {
+    beforeEach(async () => {
       parameterizer = await utils.createTestParameterizerInstance(accounts);
     });
 

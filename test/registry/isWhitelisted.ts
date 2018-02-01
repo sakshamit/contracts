@@ -2,8 +2,6 @@ import * as chai from "chai";
 import ChaiConfig from "../utils/chaiconfig";
 import * as utils from "../utils/contractutils";
 
-const AddressRegistry = artifacts.require("AddressRegistry");
-
 ChaiConfig();
 const expect = chai.expect;
 
@@ -12,7 +10,7 @@ contract("Registry", (accounts) => {
     const [applicant] = accounts;
     const listing19 = "0x0000000000000000000000000000000000000019";
     let registry: any;
-    before(async () => {
+    beforeEach(async () => {
       registry = await utils.createTestAddressRegistryInstance(accounts);
     });
 

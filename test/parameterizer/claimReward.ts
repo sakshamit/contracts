@@ -16,7 +16,7 @@ contract("Parameterizer", (accounts) => {
     let voting: any;
     let token: any;
 
-    before(async () => {
+    beforeEach(async () => {
       parameterizer = await utils.createTestParameterizerInstance(accounts);
       const votingAddress = await parameterizer.voting();
       voting = await PLCRVoting.at(votingAddress);

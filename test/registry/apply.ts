@@ -12,13 +12,12 @@ contract("AddressRegistry", (accounts) => {
     const listing1 = "0x0000000000000000000000000000000000000001";
     let registry: any;
 
-    before(async () => {
+    beforeEach(async () => {
       registry = await utils.createTestAddressRegistryInstance(accounts);
     });
 
     it("should allow a new listing to apply", async () => {
       await registry.apply(listing1, utils.paramConfig.minDeposit, "", {from: applicant });
-
       // get the struct in the mapping
       // TODO: getting structs is undefined behavior, convert this to multiple gets
       const [applicationExpiry, whitelisted, owner, unstakedDeposit] = await registry.listings(listing1);
@@ -30,7 +29,7 @@ contract("AddressRegistry", (accounts) => {
     });
 
     it("should not allow a listing to apply which has a pending application", async () => {
-      // TODO: do not rely on side effects from previous test
+      await registry.apply(listing1, utils.paramConfig.minDeposit, "", {from: applicant });
       await expect(registry.apply(listing1, utils.paramConfig.minDeposit, "", {from: applicant }))
         .to.eventually.be.rejectedWith(REVERTED);
     });
@@ -38,7 +37,7 @@ contract("AddressRegistry", (accounts) => {
     it(
       "should add a listing to the whitelist which went unchallenged in its application period",
       async () => {
-        // TODO: do not rely on side effects from previous test
+        await registry.apply(listing1, utils.paramConfig.minDeposit, "", {from: applicant });
         await utils.advanceEvmTime(utils.paramConfig.applyStageLength + 1);
         await registry.updateStatus(listing1);
         const result = await registry.isWhitelisted.call(listing1);
@@ -47,7 +46,7 @@ contract("AddressRegistry", (accounts) => {
     );
 
     it("should not allow a listing to apply which is already listed", async () => {
-      // TODO: do not rely on side effects from previous test
+      await utils.addToWhitelist(listing1, utils.paramConfig.minDeposit, applicant, registry);
       await expect(registry.apply(listing1, utils.paramConfig.minDeposit, "", {from: applicant }))
         .to.eventually.be.rejectedWith(REVERTED);
     });

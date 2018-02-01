@@ -9,7 +9,7 @@ contract("Parameterizer", (accounts: string[]) => {
   describe("Function: get", () => {
     let parameterizer: any;
 
-    before(async () => {
+    beforeEach(async () => {
       parameterizer = await utils.createTestParameterizerInstance(accounts);
     });
 
