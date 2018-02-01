@@ -16,7 +16,7 @@ contract("Registry", (accounts) => {
     let registry: any;
 
     beforeEach(async () => {
-      registry = await utils.createTestAddressRegistryInstance(accounts);
+      registry = await utils.createAllTestAddressRegistryInstance(accounts);
     });
 
     it("should not withdraw tokens from a listing that has a deposit === minDeposit", async () => {

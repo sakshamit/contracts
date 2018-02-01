@@ -16,7 +16,7 @@ contract("Parameterizer", (accounts) => {
     let token: any;
 
     beforeEach(async () => {
-      parameterizer = await utils.createTestParameterizerInstance(accounts);
+      parameterizer = await utils.createAllTestParameterizerInstance(accounts);
       const tokenAddress = await parameterizer.token();
       token = await Token.at(tokenAddress);
     });

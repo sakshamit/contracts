@@ -11,7 +11,7 @@ contract("Registry", (accounts) => {
     const listing19 = "0x0000000000000000000000000000000000000019";
     let registry: any;
     beforeEach(async () => {
-      registry = await utils.createTestAddressRegistryInstance(accounts);
+      registry = await utils.createAllTestAddressRegistryInstance(accounts);
     });
 
     it("should verify a listing is not in the whitelist", async () => {

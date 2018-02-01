@@ -13,7 +13,7 @@ contract("AddressRegistry", (accounts) => {
     let registry: any;
 
     beforeEach(async () => {
-      registry = await utils.createTestAddressRegistryInstance(accounts);
+      registry = await utils.createAllTestAddressRegistryInstance(accounts);
     });
 
     it("should allow a new listing to apply", async () => {

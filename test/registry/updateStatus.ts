@@ -19,7 +19,7 @@ contract("Registry", (accounts) => {
     let registry: any;
 
     beforeEach(async () => {
-      registry = await utils.createTestAddressRegistryInstance(accounts);
+      registry = await utils.createAllTestAddressRegistryInstance(accounts);
     });
 
     it("should whitelist listing if apply stage ended without a challenge", async () => {

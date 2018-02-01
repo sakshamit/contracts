@@ -147,11 +147,11 @@ export function multiplyByPercentage(x: number, y: number, z: number = 100): Big
   return multiplyFromWei(x, weiQuotient);
 }
 
-export async function giveTokensTo( totalSupply: BigNumber,
-                                    addresses: string[],
-                                    accounts: string[],
-                                    token: any,
-                                  ): Promise<boolean> {
+async function giveTokensTo(totalSupply: BigNumber,
+                            addresses: string[],
+                            accounts: string[],
+                            token: any,
+                            ): Promise<boolean> {
   const user = addresses[0];
   const allocation = totalSupply.div(new BigNumber(accounts.length, 10));
   await token.transfer(user, allocation);
@@ -160,16 +160,16 @@ export async function giveTokensTo( totalSupply: BigNumber,
   return giveTokensTo(totalSupply, addresses.slice(1), accounts, token);
 }
 
-export async function createAndDistributeToken( totalSupply: BigNumber,
-                                                decimals: string,
-                                                addresses: string[],
-                                              ): Promise<any> {
+async function createAndDistributeToken(totalSupply: BigNumber,
+                                        decimals: string,
+                                        addresses: string[],
+                                        ): Promise<any> {
   const token = await Token.new(totalSupply, "TestCoin", decimals, "TEST");
   await giveTokensTo(totalSupply, addresses, addresses, token);
   return token;
 }
 
-export async function createTestAddressRegistryInstance(accounts: string[]): Promise<any> {
+async function createTestAddressRegistryInstance(parameterizer: any, accounts: string[]): Promise<any> {
   async function approveRegistryFor(addresses: string[]): Promise<boolean> {
     const user = addresses[0];
     const balanceOfUser = await token.balanceOf(user);
@@ -177,8 +177,6 @@ export async function createTestAddressRegistryInstance(accounts: string[]): Pro
     if (addresses.length === 1) { return true; }
     return approveRegistryFor(addresses.slice(1));
   }
-
-  const parameterizer = await createTestParameterizerInstance(accounts);
 
   const tokenAddress = await parameterizer.token();
   const plcrAddress = await parameterizer.voting();
@@ -191,8 +189,11 @@ export async function createTestAddressRegistryInstance(accounts: string[]): Pro
   return registry;
 }
 
-export async function createTestParameterizerInstance(accounts: string[]): Promise<any> {
+async function createTestTokenInstance(accounts: string[]): Promise<any> {
+  return createAndDistributeToken(new BigNumber("1000000000000000000000000"), "18", accounts);
+}
 
+async function createTestPLCRInstance(token: any, accounts: string[]): Promise<any> {
   async function approvePLCRFor(addresses: string[]): Promise<boolean> {
     const user = addresses[0];
     const balanceOfUser = await token.balanceOf(user);
@@ -202,6 +203,13 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
     return approvePLCRFor(addresses.slice(1));
   }
 
+  const plcr = await PLCRVoting.new(token.address);
+  await approvePLCRFor(accounts);
+
+  return plcr;
+}
+
+async function createTestParameterizerInstance(accounts: string[], token: any, plcr: any): Promise<any> {
   async function approveParameterizerFor(addresses: string[]): Promise<boolean> {
     const user = addresses[0];
     const balanceOfUser = await token.balanceOf(user);
@@ -209,21 +217,7 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
     if (addresses.length === 1) { return true; }
     return approveParameterizerFor(addresses.slice(1));
   }
-
-  const token = await createAndDistributeToken(new BigNumber("1000000000000000000000000"), "18", accounts);
-  // const dll = await DLL.new();
-  // const attrstore = await AttributeStore.new();
-
-  // PLCRVoting.link("dll", dll);
-  // PLCRVoting.link("attrstore", attrstore);
-  const plcr = await PLCRVoting.new(token.address);
-
-  await approvePLCRFor(accounts);
-
   const parameterizerConfig = config.paramDefaults;
-
-  // Parameterizer.link(dll);
-  // Parameterizer.link(attrstore);
 
   const parameterizer = await Parameterizer.new(
     token.address,
@@ -244,4 +238,17 @@ export async function createTestParameterizerInstance(accounts: string[]): Promi
 
   await approveParameterizerFor(accounts);
   return parameterizer;
+}
+
+export async function createAllTestParameterizerInstance(accounts: string[]): Promise<any> {
+  const token = await createTestTokenInstance(accounts);
+  const plcr = await createTestPLCRInstance(token, accounts);
+  return createTestParameterizerInstance(accounts, token, plcr);
+}
+
+export async function createAllTestAddressRegistryInstance(accounts: string[]): Promise<any> {
+  const token = await createTestTokenInstance(accounts);
+  const plcr = await createTestPLCRInstance(token, accounts);
+  const parameterizer = await createTestParameterizerInstance(accounts, token, plcr);
+  return createTestAddressRegistryInstance(parameterizer, accounts);
 }

@@ -19,7 +19,7 @@ contract("Registry", (accounts) => {
     let registry: any;
 
     beforeEach(async () => {
-      registry = await utils.createTestAddressRegistryInstance(accounts);
+      registry = await utils.createAllTestAddressRegistryInstance(accounts);
     });
 
     it("should increase the deposit for a specific listing in the listing", async () => {

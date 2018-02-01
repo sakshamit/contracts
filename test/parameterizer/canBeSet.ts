@@ -11,7 +11,7 @@ contract("Parameterizer", (accounts: string[]) => {
     let parameterizer: any;
 
     beforeEach(async () => {
-      parameterizer = await utils.createTestParameterizerInstance(accounts);
+      parameterizer = await utils.createAllTestParameterizerInstance(accounts);
     });
 
     it("should return true if a proposal passed its application stage with no challenge", async () => {

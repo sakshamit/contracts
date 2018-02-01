@@ -23,7 +23,7 @@ contract("Registry", (accounts) => {
     let voting: any;
 
     beforeEach(async () => {
-      registry = await utils.createTestAddressRegistryInstance(accounts);
+      registry = await utils.createAllTestAddressRegistryInstance(accounts);
       const parameterizerAddress = await registry.parameterizer();
       parameterizer = await Parameterizer.at(parameterizerAddress);
       const tokenAddress = await registry.token();
