@@ -103,21 +103,12 @@ export async function addToWhitelist(
   await registry.updateStatus(listingAddress, { from: account });
 }
 
-export function toBaseTenBigNumber(p: any): BigNumber {
+export function toBaseTenBigNumber(p: number): BigNumber {
   return new BigNumber(p.toString(10), 10);
 }
 
 export function getVoteSaltHash(vote: string, salt: string): string {
   return `0x${abi.soliditySHA3(["uint", "uint"], [vote, salt]).toString("hex")}`;
-}
-
-export async function getUnstakedDeposit(
-  listingAddress: string,
-  registry: any,
-): Promise<BigNumber> {
-  const listing = await registry.listings(listingAddress);
-  const unstakedDeposit = await listing[3];
-  return unstakedDeposit;
 }
 
 export async function commitVote( voting: any,

@@ -44,7 +44,6 @@ contract("Parameterizer", (accounts) => {
 
       const { propID } = receipt.logs[0].args;
       const processBy = await parameterizer.getPropProcessBy(propID);
-      // const processBy = paramProp[5];
       await utils.advanceEvmTime(processBy.toNumber() + 1);
 
       await parameterizer.processProposal(propID);
@@ -75,7 +74,6 @@ contract("Parameterizer", (accounts) => {
       await voting.revealVote(pollID, "0", "420", { from: voter });
 
       const processBy = await parameterizer.getPropProcessBy(propID);
-      // const processBy = paramProp[5];
       await utils.advanceEvmTime(processBy.toNumber() + 1);
 
       await parameterizer.processProposal(propID);

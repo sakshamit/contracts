@@ -24,7 +24,7 @@ contract AddressRegistry {
 
     struct Listing {
         uint applicationExpiry; // Expiration date of apply stage
-        bool isWhitelisted;       // Indicates registry status
+        bool isWhitelisted;     // Indicates registry status
         address owner;          // Owner of listing
         uint unstakedDeposit;   // Number of tokens in the listing not locked in a challenge
         uint challengeID;       // Corresponds to a PollID in PLCRVoting
