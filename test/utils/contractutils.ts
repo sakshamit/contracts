@@ -60,14 +60,17 @@ export async function advanceEvmTime(time: number): Promise<void> {
   });
 }
 
-export async function proposeReparamAndGetPropID( propName: string,
-                                                  propValue: string,
-                                                  parameterizer: any,
-                                                  account: string,
-                                                ): Promise<any> {
-  const receipt = await parameterizer.proposeReparameterization(propName,
-                                                                propValue,
-                                                                { from: account });
+export async function proposeReparamAndGetPropID(
+  propName: string,
+  propValue: BigNumber,
+  parameterizer: any,
+  account: string,
+): Promise<any> {
+  const receipt = await parameterizer.proposeReparameterization(
+    propName,
+    propValue,
+    { from: account },
+  );
   return receipt.logs[0].args.propID;
 }
 
@@ -100,7 +103,7 @@ export async function addToWhitelist(
   await registry.updateStatus(listingAddress, { from: account });
 }
 
-export function toBaseTenBigNumber(p: number): BigNumber {
+export function toBaseTenBigNumber(p: any): BigNumber {
   return new BigNumber(p.toString(10), 10);
 }
 
