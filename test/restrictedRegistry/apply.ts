@@ -47,7 +47,7 @@ contract("RestrictedAddressRegistry", (accounts) => {
       const testNewsroom = await Newsroom.new({ from: applicant });
       const address = testNewsroom.address;
       await registry.apply(address, utils.paramConfig.minDeposit, "", {from: applicant });
-      await expect(registry.apply(address, utils.paramConfig.minDeposit, {from: applicant }))
+      await expect(registry.apply(address, utils.paramConfig.minDeposit, "", {from: applicant }))
         .to.eventually.be.rejectedWith(REVERTED);
     });
 
