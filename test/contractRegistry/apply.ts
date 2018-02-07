@@ -22,7 +22,8 @@ contract("ContractAddressRegistry", (accounts) => {
     it("should allow contract owner to apply on behalf of contract", async () => {
       const testNewsroom = await Newsroom.new({ from: applicant });
       const address = testNewsroom.address;
-      await registry.apply(testNewsroom.address, utils.paramConfig.minDeposit, "", {from: applicant });
+      await expect(registry.apply(testNewsroom.address, utils.paramConfig.minDeposit, "", {from: applicant }))
+        .to.eventually.be.fulfilled();
 
       // get the struct in the mapping
       const applicationExpiry = await registry.getListingApplicationExpiry(address);
@@ -75,7 +76,7 @@ contract("ContractAddressRegistry", (accounts) => {
       const testNewsroom = await Newsroom.new({ from: troll });
       const address = testNewsroom.address;
       await expect(registry.apply(address, utils.paramConfig.minDeposit, "", {from: applicant }))
-        .to.eventually.be.fulfilled;
+        .to.eventually.be.fulfilled();
     });
 
     it("should prevent non-contract address from being listed when registry cast to AddressRegistry", async () => {
