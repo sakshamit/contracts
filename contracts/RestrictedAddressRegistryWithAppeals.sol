@@ -1,28 +1,31 @@
 pragma solidity ^0.4.18;
 
 import "./RestrictedAddressRegistry.sol";
-import "./ACL.sol";
 
 contract RestrictedAddressRegistryWithAppeals is RestrictedAddressRegistry {
 
   event AppealRequested(address indexed requester, address indexed listing);
   event AppealGranted(address indexed listing);
+  event AppealFeeSet(uint fee);
+  event MakeAppealLengthSet(uint length);
+  event AppealLengthSet(uint length);
+  event FeeRecipientSet(address recipient);
 
   modifier onlyAppellate {
-    require(msg.sender == Appellate);
+    require(msg.sender == appellate);
     _;
   }
 
   modifier onlyFeeRecipient {
-    require(msg.sender == FeeRecipient);
+    require(msg.sender == feeRecipient);
     _;
   }
 
-  address public Appellate;
-  address public FeeRecipient;
+  address public appellate;
+  address public feeRecipient;
   uint public appealFee;
-  uint public makeAppealLength = 259200; // 3 days
-  uint public appealLength = 604800; // 7 days
+  uint public requestAppealPhaseLength = 259200; // 3 days
+  uint public judgeAppealPhaseLength = 1209600; // 14 days
 
   uint public deniedAppealFees;
 
@@ -49,11 +52,11 @@ contract RestrictedAddressRegistryWithAppeals is RestrictedAddressRegistry {
       address tokenAddr,
       address plcrAddr,
       address paramsAddr,
-      address appellateAddr
+      address appellateAddr,
       address feeRecipientAddr
   ) public RestrictedAddressRegistry(tokenAddr, plcrAddr, paramsAddr) {
-      Appellate = appellateAddr;
-      FeeRecipient = feeRecpientAddr;
+      appellate = appellateAddr;
+      feeRecipient = feeRecipientAddr;
   }
 
   function resolveChallenge(address listingAddress) internal {
@@ -63,7 +66,7 @@ contract RestrictedAddressRegistryWithAppeals is RestrictedAddressRegistry {
     } else { // Case: challenge succeeded, enter appeals phase
       Appeal storage appeal = appeals[listingAddress];
       if(appeal.makeAppealExpiry == 0) { // if not already in it
-        appeal.makeAppealExpiry = now + makeAppealLength;
+        appeal.makeAppealExpiry = now + requestAppealPhaseLength;
       }
     }
   }
@@ -145,7 +148,7 @@ contract RestrictedAddressRegistryWithAppeals is RestrictedAddressRegistry {
   @param listingAddress address of listing that has been successfully challenged
   */
   function requestAppeal(address listingAddress) external {
-    var listing = appeals[listingAddress];
+    var listing = listings[listingAddress];
     require(listing.owner == msg.sender);
 
     var appeal = appeals[listingAddress];
@@ -184,4 +187,49 @@ contract RestrictedAddressRegistryWithAppeals is RestrictedAddressRegistry {
     require(token.transferFrom(this, msg.sender, deniedAppealFees));
     deniedAppealFees = 0;
   }
+
+  /**
+  @notice Set new value for appeal fee
+          Can only be called by Appellate
+  @param fee The new value for the appeal fee
+  */
+  function setAppealFee(uint fee) onlyAppellate external {
+    require(fee > 0); // safety check
+    appealFee = fee;
+    AppealFeeSet(fee);
+  }
+
+  /**
+  @notice Set new value for the length of "Request Appeal Phase"
+          Can only be called by Appellate
+  @param length The new value for the "Request Appeal Phase" length
+  */
+  function setMakeAppealLength(uint length) onlyAppellate external {
+    require(length > 0); // safety check
+    requestAppealPhaseLength = length;
+    MakeAppealLengthSet(length);
+  }
+
+  /**
+  @notice Set new value for the length of "Judge Appeal Phase"
+          Can only be called by Appellate
+  @param length The new value for the "Judge Appeal Phase" length
+  */
+  function setAppealLength(uint length) onlyAppellate external {
+    require(length > 0); // safety check
+    judgeAppealPhaseLength = length;
+    AppealLengthSet(length);
+  }
+
+  /**
+  @notice Set new value for the Fee Recipient
+          Can only be called by Appellate
+  @param recipient The new value for the Fee Recipient
+  */
+  function setFeeRecipient(address recipient) onlyAppellate external {
+    feeRecipient = recipient;
+    FeeRecipientSet(recipient);
+  }
+
+
 }
